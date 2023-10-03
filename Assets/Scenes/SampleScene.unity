@@ -399,6 +399,7 @@ GameObject:
   - component: {fileID: 561873167}
   - component: {fileID: 561873166}
   - component: {fileID: 561873165}
+  - component: {fileID: 561873169}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -489,6 +490,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &561873169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561873164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f935f3e60fdcf54e90ec31c7f33ca95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &696399771
 GameObject:
   m_ObjectHideFlags: 0
@@ -824,6 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc8cbb5021ed5394eadb4825ff9a8111, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uIChecker: {fileID: 561873169}
 --- !u!1 &1339827928
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,7 +937,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystick: {fileID: 1834439127}
-  jumpForce: 2
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
