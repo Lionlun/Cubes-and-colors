@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 		character.Move(velocity * Time.fixedDeltaTime);
 	}
 
-	private void Jump()
+	public void Jump()
 	{
 		if (isGrounded)
 		{

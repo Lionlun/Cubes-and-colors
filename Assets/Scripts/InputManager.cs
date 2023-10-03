@@ -19,27 +19,43 @@ public class InputManager : MonoBehaviour
 	private void OnEnable()
 	{
 		touchControls.Enable();
-		touchControls.Touch.TouchPress.started += ctx => StartTouch(ctx);
-		touchControls.Touch.TouchPress.canceled += ctx => EndTouch(ctx);
+		touchControls.Touch.FirstTouchPress.started += ctx => StartTouch(ctx);
+		touchControls.Touch.SecondTouch.started += ctx => SecondTouch(ctx);
+		touchControls.Touch.FirstTouchPress.canceled += ctx => EndTouch(ctx);
+		touchControls.Touch.SecondTouch.canceled += ctx => EndTouch(ctx);
 	}
 
 	private void OnDisable()
 	{
 		touchControls.Disable();
+		touchControls.Touch.FirstTouchPress.started -= ctx => StartTouch(ctx);
+		touchControls.Touch.SecondTouch.started -= ctx => SecondTouch(ctx);
+		touchControls.Touch.FirstTouchPress.canceled -= ctx => EndTouch(ctx);
+		touchControls.Touch.SecondTouch.canceled -= ctx => EndTouch(ctx);
 	}
 
 	private async void StartTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
-
+		
 		if (!uIChecker.IsPointerOverUI())
 		{
 			OnTouchStarted?.Invoke();
 		}
 	}
+	private async void SecondTouch(InputAction.CallbackContext context)
+	{
+		await Task.Delay(10); //ToDo Implement the appropriate solution later
+		OnTouchStarted?.Invoke();
+	}
 
 	private void EndTouch(InputAction.CallbackContext context)
 	{
 		OnTouchEnded?.Invoke(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.time);
+	}
+
+	private void CheckUI()
+	{
+		
 	}
 }

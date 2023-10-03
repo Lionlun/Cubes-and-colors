@@ -6,12 +6,21 @@
             "id": "1e984d50-1fe6-4786-81aa-eed6d138c9ec",
             "actions": [
                 {
-                    "name": "TouchPress",
+                    "name": "FirstTouchPress",
                     "type": "Button",
                     "id": "b34c82b9-e937-4c16-8e7e-4776ce00b2ce",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondTouch",
+                    "type": "Button",
+                    "id": "e6ff6fcf-1166-49d4-adb3-012b74109216",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press",
                     "initialStateCheck": false
                 },
                 {
@@ -28,11 +37,11 @@
                 {
                     "name": "",
                     "id": "b13f654e-c0e5-4831-a145-e856fc99a39e",
-                    "path": "<Touchscreen>/primaryTouch/press",
+                    "path": "<Touchscreen>/touch0/press",
                     "interactions": "Press",
                     "processors": "",
                     "groups": "",
-                    "action": "TouchPress",
+                    "action": "FirstTouchPress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -44,6 +53,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "TouchPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0aa82df-965e-4289-ace0-3d6193c8e63c",
+                    "path": "<Touchscreen>/touch1/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondTouch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
