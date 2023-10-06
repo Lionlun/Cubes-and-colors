@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
 	public static event Action OnTouchStarted = delegate { };
-	public static event Action<Vector2, float> OnTouchEnded = delegate { };
+	public static event Action OnTouchEnded = delegate { };
 	private TouchControls touchControls;
 	[SerializeField] private UITouchChecker uIChecker;
 
@@ -51,7 +51,7 @@ public class InputManager : MonoBehaviour
 
 	private void EndTouch(InputAction.CallbackContext context)
 	{
-		OnTouchEnded?.Invoke(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.time);
+		OnTouchEnded?.Invoke();
 	}
 
 	private void CheckUI()
