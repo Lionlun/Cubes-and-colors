@@ -32,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
 
 	private bool canMove = true;
 
+	[SerializeField] private Animator animator;
+
 	private void OnEnable()
 	{
 		InputManager.OnTouchStarted += HandleJumpBuffer;
@@ -73,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			Rotation();
 		}
+		HandleAnimation();
 	}
 
 	private void FixedUpdate()
@@ -80,6 +83,28 @@ public class PlayerMovement : MonoBehaviour
 		HandleVelocityWhenGrounded();
 		Move();
 		DoGravity();
+	}
+
+	private void HandleAnimation()
+	{
+		if (joystick.Horizontal != 0 || joystick.Vertical != 0)
+		{
+			animator.SetBool("IsRunning", true);
+		}
+		else
+		{
+			animator.SetBool("IsRunning", false);
+		}
+
+		if (!isGrounded)
+		{
+			animator.SetBool("IsJumping", true);
+			animator.SetBool("IsRunning", false);
+		}
+		else
+		{
+			animator.SetBool("IsJumping", false);
+		}
 	}
 
 	private void Move()
