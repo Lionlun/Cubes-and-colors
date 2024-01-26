@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private float checkGroundRadius = 0.4f;
 	[SerializeField] private float jumpHeight = 6f;
 
+	[SerializeField] private Transform finishLedgePosition;
+
 	private CharacterController character;
 
 	private float maxSpeed = 8f;
@@ -24,13 +26,16 @@ public class PlayerMovement : MonoBehaviour
 	private float gravity = -40f;
 	private bool isGrounded;
 
-	private float jumpBufferTime = 0.1f; //Buffer time is working wrong when the second jump is too soon, it still makes jump
+	private float jumpBufferTime = 0.1f;
 	private float jumpBufferCounter;
 
 	private float coyoteTime = 0.2f;
 	private float coyoteTimeCounter;
+	private float downVelocityMultiplier = 1f;
 
 	private bool canMove = true;
+
+	[SerializeField] private AudioClip jumpSound;
 
 	[SerializeField] private Animator animator;
 
@@ -59,9 +64,11 @@ public class PlayerMovement : MonoBehaviour
 			verticalSpeed = 0;
 			verticalVelocity = 0;
 		}
+
 		if (isGrounded)
 		{
 			coyoteTimeCounter = coyoteTime;
+			downVelocityMultiplier = 1f;
 		}
 		else
 		{
@@ -71,18 +78,21 @@ public class PlayerMovement : MonoBehaviour
 		jumpBufferCounter -= Time.deltaTime;
 		Jump();
 
-		if (joystick.Horizontal != 0 ||  joystick.Vertical != 0)
-		{
-			Rotation();
-		}
+	
 		HandleAnimation();
-	}
 
-	private void FixedUpdate()
-	{
-		HandleVelocityWhenGrounded();
-		Move();
-		DoGravity();
+		if (canMove)
+		{
+			HandleVelocityWhenGrounded();
+			Move();
+			DoGravity();
+
+			if (joystick.Horizontal != 0 || joystick.Vertical != 0)
+			{
+				Rotation();
+			}
+		}
+
 	}
 
 	private void HandleAnimation()
@@ -135,11 +145,8 @@ public class PlayerMovement : MonoBehaviour
 			verticalSpeed = Mathf.MoveTowards(verticalSpeed, 0, deceleration * Time.deltaTime);
 		}
 
-		//verticalSpeed = Mathf.Clamp(verticalSpeed, -maxSpeed, maxSpeed);
-		//horizontalSpeed = Mathf.Clamp(horizontalSpeed, -maxSpeed, maxSpeed);
-
 		var velocity = new Vector3(horizontalSpeed, 0, verticalSpeed);
-		character.Move(velocity * Time.fixedDeltaTime);
+		character.Move(velocity * Time.deltaTime);
 	}
 
 	private void Rotation()
@@ -166,8 +173,8 @@ public class PlayerMovement : MonoBehaviour
 
 	private void DoGravity()
 	{
-		verticalVelocity += gravity * Time.fixedDeltaTime;
-		character.Move(Vector3.up * verticalVelocity * Time.fixedDeltaTime);
+		verticalVelocity += gravity * Time.deltaTime;
+		character.Move(Vector3.up * verticalVelocity * downVelocityMultiplier * Time.deltaTime);
 	}
 
 	private bool CheckIsGrounded()
@@ -188,9 +195,10 @@ public class PlayerMovement : MonoBehaviour
 
 	private void GoDown()
 	{
-		if (verticalVelocity > 0)
+		if(verticalVelocity > 0)
 		{
-			verticalVelocity *= 0.2f;
+			verticalVelocity = 0f;
+			downVelocityMultiplier = 1.4f;
 		}
 	}
 
@@ -204,5 +212,24 @@ public class PlayerMovement : MonoBehaviour
 	public void ContinueMovement()
 	{
 		canMove = true;
+	}
+	public void FinishClimb()
+	{
+		transform.position = finishLedgePosition.position;
+		canMove = true;
+	}
+
+	public float GetVerticalVelocity()
+	{
+		return verticalVelocity;
+	}
+
+	public void PushUp()
+	{
+		verticalVelocity = 30;
+	}
+	public void Follow(Vector3 direction)
+	{
+		transform.position += direction;
 	}
 }

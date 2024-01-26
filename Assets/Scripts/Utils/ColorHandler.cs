@@ -23,7 +23,7 @@ public static class ColorHandler
 				return Color.red;
 
 			case CubeColor.Orange:
-				return new Color32(255, 127, 80, 1);
+				return new Color(1.0f, 0.50f, 0.0f, 1);
 
 			default:
 				return Color.white;

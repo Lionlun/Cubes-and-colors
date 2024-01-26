@@ -3,6 +3,7 @@ using UnityEngine;
 public class CameraObstacleDetection : MonoBehaviour
 {
     [SerializeField] private PlayerMovement player;
+    private Vector3 playerOffset = new Vector3(0, 1, 0);
 
 	private void Update()
 	{
@@ -12,7 +13,7 @@ public class CameraObstacleDetection : MonoBehaviour
     {
         if (player != null)
         {
-            Vector3 direction = player.transform.position - transform.position;
+            Vector3 direction = player.transform.position + playerOffset - transform.position;
             Ray ray = new Ray(transform.position, direction);
             RaycastHit hit;
 

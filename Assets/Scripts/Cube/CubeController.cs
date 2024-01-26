@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -7,24 +8,45 @@ public class CubeController : MonoBehaviour
 
 	private int timer;
 	private int timeToDisappear = 10;
+	private CancellationTokenSource tokenSource = null;
 
 	private void Start()
 	{
 		timer = timeToDisappear;
-		DeactivateCubes();
+
+		StartCubeDeactivation();
 	}
 
-	private async void DeactivateCubes()
+	private void StartCubeDeactivation()
 	{
-		await Task.Delay(5000);
-		var cubes = FindObjectsOfType<CubeBase>();
+		tokenSource = new CancellationTokenSource();
+		var token = tokenSource.Token;
+
+		DeactivateCubes(token);
+	}
+
+	private async void DeactivateCubes(CancellationToken token)
+	{
+		await Task.Delay(10000);
+		if (token.IsCancellationRequested)
+		{
+			tokenSource.Dispose();
+			return;
+		}
+
+		var cubes = CubeSpawner.Cubes;
 		var randomColorEnum = RandomEnum.GetRandomEnum<CubeColor>();
 		var randomColor = randomColorEnum.GetColor();
+		HandleTimer(randomColorEnum.ToString(), randomColor, token);
 
-		HandleTimer(randomColorEnum.ToString(), randomColor);
 		await Task.Delay(10000);
+		if (token.IsCancellationRequested)
+		{
+			tokenSource.Dispose();
+			return;
+		}
 
-		foreach(var cube in cubes)
+		foreach (var cube in cubes)
 		{
 			if (cube.CubeCurrentColor != randomColor)
 			{
@@ -33,6 +55,11 @@ public class CubeController : MonoBehaviour
 		}
 
 		await Task.Delay(3000);
+		if (token.IsCancellationRequested)
+		{
+			tokenSource.Dispose();
+			return;
+		}
 
 		foreach (var cube in cubes)
 		{
@@ -42,21 +69,68 @@ public class CubeController : MonoBehaviour
 			}
 		}
 		await Task.Delay(3000);
-		DeactivateCubes();
+		if (token.IsCancellationRequested)
+		{
+			tokenSource.Dispose();
+			return;
+		}
+
+		StartCubeDeactivation();
 	}
 
-	private async void HandleTimer(string colorText, Color32 color)
+	private async void HandleTimer(string colorText, Color32 color, CancellationToken token)
 	{
 		timerText.Activate();
 		timerText.SetColor(color);
 
 		while (timer > 0)
 		{
+			if(token.IsCancellationRequested)
+			{
+				tokenSource.Dispose();
+				return;
+			}
+
 			timer -= 1;
 			timerText.UpdateText(timer, colorText);
 			await Task.Delay(1000);
 		}
 		timer = timeToDisappear;
 		timerText.Deactivate();
+	}
+
+	public void DeactivateOtherCubes()
+	{
+		var cubes = CubeSpawner.Cubes;
+		foreach (var cube in cubes)
+		{
+			if (cube.gameObject.GetComponent<TurnOffCube>() != null)
+			{
+				continue;
+			}
+			cube.gameObject.SetActive(false);
+		}
+	}
+
+	public void ActivateOtherCubes()
+	{
+		var cubes = CubeSpawner.Cubes;
+		foreach (var cube in cubes)
+		{
+			if (cube.gameObject.GetComponent<TurnOffCube>() != null)
+			{
+				continue;
+			}
+			cube.gameObject.SetActive(true);
+		}
+	}
+
+
+	private void OnApplicationQuit()
+	{
+		if (tokenSource != null)
+		{
+			tokenSource.Cancel();
+		}
 	}
 }

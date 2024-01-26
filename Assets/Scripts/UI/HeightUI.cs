@@ -4,7 +4,7 @@ using UnityEngine;
 public class HeightUI : MonoBehaviour
 {
 	private TextMeshProUGUI text;
-	[SerializeField] HeightMeasurement HeightMeasurement;
+	[SerializeField] private HeightMeasurement heightMeasurement;
 
 	private void Start()
 	{
@@ -13,6 +13,6 @@ public class HeightUI : MonoBehaviour
 
 	private void Update()
 	{
-		text.text = $"{HeightMeasurement.Height} m";
+		text.text = $"{heightMeasurement.Height} m";
 	}
 }

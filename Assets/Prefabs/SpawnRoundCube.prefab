@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 4305832305422326693}
   - component: {fileID: 4240048678834133925}
   - component: {fileID: 3758602148024458734}
-  - component: {fileID: 6537813049645505109}
   - component: {fileID: 952946993891351449}
+  - component: {fileID: 8812563485542975785}
   m_Layer: 6
-  m_Name: RoundCube
+  m_Name: SpawnRoundCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -107,18 +107,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.02, y: 0.019999996, z: 0.019999996}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6537813049645505109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7942899067505911577}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6907880c4fc8c634fa4f1611dfb81bba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &952946993891351449
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -146,3 +134,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &8812563485542975785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7942899067505911577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc344f92a16225d4597e607cbf18dfa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 128

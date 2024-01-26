@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    [SerializeField] private Transform target;
+    [SerializeField] private PlayerMovement player;
     private Vector3 cameraOffset = new Vector3(0 , 3, -7);
+	private float cameraSpeed = 18f;
+	private float modifiedSpeed;
 
 	private void Update()
 	{
@@ -12,6 +14,15 @@ public class CameraFollow : MonoBehaviour
 
 	private void Follow()
     {
-		transform.position = target.position + cameraOffset;
+		if (player.GetVerticalVelocity() < -10) 
+		{
+			modifiedSpeed = cameraSpeed * 10;
+		}
+        else
+        {
+			modifiedSpeed = cameraSpeed;
+        }
+
+        transform.position = Vector3.MoveTowards(transform.position, player.transform.position + cameraOffset, modifiedSpeed * Time.deltaTime);
 	}
 }

@@ -28,6 +28,7 @@ public class ShadowCaster : MonoBehaviour
 			}
 			else
 			{
+				hitPosition = Vector3.zero;
 			}
 		}
 
