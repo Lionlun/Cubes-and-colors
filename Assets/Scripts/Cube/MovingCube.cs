@@ -3,27 +3,30 @@ using UnityEngine;
 
 public class MovingCube : CubeBase
 {
-	private Vector3 direction;
 	private Vector3 initialPosition;
+	private Vector3 endPostion;
 	private float speed = 2.5f;
+	private float travelDistance = 5;
+	private bool isMovingForward;
 	[SerializeField] private LayerMask playerLayer;
-
-	private void OnEnable()
-	{
-		//transform.position = initialPosition;
-		StartCoroutine(ChangeDirection());
-	}
+	private Vector3 direction;
+	private Vector3 destination;
 
 	private void Start()
 	{
 		initialPosition = transform.position;
-		CubeCurrentColor = RandomEnum.GetRandomEnum<CubeColor>().GetColor();
+		endPostion = transform.position + transform.forward*travelDistance;
+		destination = endPostion;
+		isMovingForward = true;
+        CubeCurrentColor = RandomEnum.GetRandomEnum<CubeColor>().GetColor();
 		SetColor(CubeCurrentColor);
 	}
 
 	private void Update()
 	{
-		Move();
+        Move();
+		SetDirection();
+		
 
 		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
 
@@ -37,17 +40,25 @@ public class MovingCube : CubeBase
 		}
 	}
 
-	private IEnumerator ChangeDirection()
-	{
-		direction = transform.forward;
-		yield return new WaitForSeconds(2);
-		direction = -transform.forward;
-		yield return new WaitForSeconds(2);
-		StartCoroutine(ChangeDirection());
-	}
-
 	private void Move()
 	{
-		transform.position += direction * speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+		
 	}
+	private void SetDirection()
+	{
+        if (transform.position == destination)
+        {
+            if (destination == endPostion)
+            {
+                destination = initialPosition;
+            }
+            else
+            {
+                destination = endPostion;
+            }
+        }
+
+        direction = (destination - transform.position).normalized;
+    }
 }
