@@ -16,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private CharacterController character;
 
-	private float maxSpeed = 8f;
+	private float maxSpeed = 8.5f;
 	private float acceleration = 30f;
 	private float deceleration = 20f;
 	float verticalSpeed = 0;

@@ -63,7 +63,7 @@ public class CubeSpawner : MonoBehaviour
 		}
 		previousRandomX = randomX;
 
-		var randomY = Random.Range(4f,6);
+		var randomY = Random.Range(4,5.5f);
 		var randomZ = Random.Range(-4,4);
 		return new Vector3(randomX,randomY,randomZ);
 	}
