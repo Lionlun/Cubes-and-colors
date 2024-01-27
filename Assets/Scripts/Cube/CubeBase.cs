@@ -4,7 +4,7 @@ public class CubeBase : MonoBehaviour
 {
 	public Color CubeCurrentColor { get; set; }
 	private Renderer cubeRenderer;
-	private float transparentTimer = 0.1f;
+	protected float TransparentTimer = 0.1f;
 
 	private void Awake()
 	{
@@ -19,11 +19,11 @@ public class CubeBase : MonoBehaviour
 
 	private void Update()
 	{
-		if (transparentTimer < 0)
+		if (TransparentTimer < 0)
 		{
 			GoOpaque();
 		}
-		transparentTimer -= Time.deltaTime;
+		TransparentTimer -= Time.deltaTime;
 	}
 
 	protected void SetColor(Color color)
@@ -33,7 +33,7 @@ public class CubeBase : MonoBehaviour
 
 	public void GoTransparent()
 	{
-		transparentTimer = 0.5f;
+		TransparentTimer = 0.5f;
 		Material uniqueMaterial = cubeRenderer.material;
 		uniqueMaterial.color = new Color(cubeRenderer.material.color.r, cubeRenderer.material.color.g, cubeRenderer.material.color.b, 0.1f);
 	}

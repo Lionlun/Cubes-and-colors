@@ -38,7 +38,14 @@ public class MovingCube : CubeBase
 				player.Follow(direction * speed * Time.deltaTime);
 			}
 		}
-	}
+
+        if (TransparentTimer < 0)
+        {
+            GoOpaque();
+        }
+        TransparentTimer -= Time.deltaTime;
+
+    }
 
 	private void Move()
 	{
