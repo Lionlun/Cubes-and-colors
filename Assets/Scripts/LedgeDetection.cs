@@ -21,24 +21,18 @@ public class LedgeDetection : MonoBehaviour
 
 	private void OnEnable()
 	{
-		InputManager.OnTouchStarted += Climb;
+		//InputManager.OnTouchStarted += Climb;
 	}
 
 	private void OnDisable()
 	{
-		InputManager.OnTouchStarted -= Climb;
-	}
-
-
-	private void Update()
-	{
-		
+		//InputManager.OnTouchStarted -= Climb;
 	}
 
 	private void FixedUpdate()
 	{
 		CheckLedge();
-	}
+    }
 
 	private void Climb()
 	{
@@ -68,8 +62,8 @@ public class LedgeDetection : MonoBehaviour
 		{	
 			player.Stop();
 			CalculateCorrectOffset();
-		
-		}
+            Climb();
+        }
 	}
 
 	private void MoveTowardsLedge()
@@ -105,8 +99,6 @@ public class LedgeDetection : MonoBehaviour
 			}
 		}
 	}
-
-
 
 	private void OnDrawGizmos()
 	{

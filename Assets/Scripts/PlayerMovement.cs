@@ -119,8 +119,8 @@ public class PlayerMovement : MonoBehaviour
 
 	private void Move()
 	{
-		float horizontalSpeedDif = maxSpeed - horizontalSpeed;
-		float verticalSpeedDif = maxSpeed - verticalSpeed;
+		//float horizontalSpeedDif = maxSpeed - horizontalSpeed;
+		//float verticalSpeedDif = maxSpeed - verticalSpeed;
 		float maxHorSpeed = joystick.Horizontal * maxSpeed;
 		float maxVertSpeed = joystick.Vertical * maxSpeed;
 
