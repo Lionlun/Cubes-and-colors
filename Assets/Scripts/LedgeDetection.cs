@@ -19,16 +19,6 @@ public class LedgeDetection : MonoBehaviour
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Animator animator;
 
-	private void OnEnable()
-	{
-		//InputManager.OnTouchStarted += Climb;
-	}
-
-	private void OnDisable()
-	{
-		//InputManager.OnTouchStarted -= Climb;
-	}
-
 	private void FixedUpdate()
 	{
 		CheckLedge();
