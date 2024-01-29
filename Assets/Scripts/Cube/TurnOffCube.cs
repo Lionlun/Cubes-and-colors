@@ -1,24 +1,23 @@
 using UnityEngine;
 
-public class TurnOffCube : MonoBehaviour
+public class TurnOffCube : CubeBase
 {
 	[SerializeField] private LayerMask playerLayer;
 	private CubeController cubeController;
 	private bool isAlreadyTriggered;
 
-
 	private void Start()
 	{
 		cubeController = FindObjectOfType<CubeController>();
 	}
-	private void Update()
-	{
 
-		/*Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
+	private void FixedUpdate()
+	{
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
 
 		if (hitColliders.Length > 0 ) 
 		{
-			if (isAlreadyTriggered ) 
+			if (isAlreadyTriggered) 
 			{
 				return;
 			}
@@ -33,8 +32,11 @@ public class TurnOffCube : MonoBehaviour
 		}
 		else
 		{
-			cubeController.ActivateOtherCubes();
-			isAlreadyTriggered = false;
-		}*/
+			if(isAlreadyTriggered)
+			{
+                cubeController.ActivateOtherCubes();
+                isAlreadyTriggered = false;
+            }
+		}
 	}
 }

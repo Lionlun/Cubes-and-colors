@@ -1486,6 +1486,8 @@ MonoBehaviour:
     type: 3}
   movingCube: {fileID: 39787468015859512, guid: 6f576938454855b4aa6fe52612a85b2d,
     type: 3}
+  turnOffCube: {fileID: -7052375302464639835, guid: 4561bf25e6c9a564f903fc5af8adabc5,
+    type: 3}
   heightMeasurement: {fileID: 1116680026}
 --- !u!4 &1103177920
 Transform:

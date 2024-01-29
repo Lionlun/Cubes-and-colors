@@ -101,28 +101,32 @@ public class CubeController : MonoBehaviour
 
 	public void DeactivateOtherCubes()
 	{
+		Debug.Log("Try to deactivate");
 		var cubes = CubeSpawner.Cubes;
 		foreach (var cube in cubes)
 		{
-			if (cube.gameObject.GetComponent<TurnOffCube>() != null)
+			if (cube.CubeType == CubeType.TurnOffCube)
 			{
 				continue;
 			}
 			cube.gameObject.SetActive(false);
+			Debug.Log("CubeDeactivated");
 		}
 	}
 
 	public void ActivateOtherCubes()
 	{
-		var cubes = CubeSpawner.Cubes;
+        Debug.Log("Try to activate");
+        var cubes = CubeSpawner.Cubes;
 		foreach (var cube in cubes)
 		{
-			if (cube.gameObject.GetComponent<TurnOffCube>() != null)
+			if (cube.CubeType == CubeType.TurnOffCube)
 			{
 				continue;
 			}
 			cube.gameObject.SetActive(true);
-		}
+            Debug.Log("CubeActivated");
+        }
 	}
 
 

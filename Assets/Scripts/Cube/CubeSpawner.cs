@@ -8,6 +8,7 @@ public class CubeSpawner : MonoBehaviour
 	[SerializeField] private CubeBase cube;
 	[SerializeField] private SpawnCube spawnCube;
 	[SerializeField] private MovingCube movingCube;
+	[SerializeField] private TurnOffCube turnOffCube;
 	private Vector3 lastPosition;
 	private float previousRandomX = 0;
 	[SerializeField] private HeightMeasurement heightMeasurement;
@@ -34,12 +35,18 @@ public class CubeSpawner : MonoBehaviour
 		{
 			var newPosition = lastPosition + GetRandomOffset();
 
-			if (i % 10 == 0)
+
+            if (i % 20 == 0)
+            {
+                var newTurnOffCube = Instantiate(turnOffCube, newPosition, Quaternion.identity);
+                lastPosition = newTurnOffCube.transform.position;
+                Cubes.Add(newTurnOffCube);
+            }
+            else if (i % 10 == 0)
 			{
 				var newMovingCube = Instantiate(movingCube, newPosition, Quaternion.identity);
 				lastPosition = newMovingCube.transform.position;
 				Cubes.Add(newMovingCube);
-
 			}
 			else
 			{

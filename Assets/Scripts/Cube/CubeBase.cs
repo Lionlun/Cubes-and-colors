@@ -5,6 +5,8 @@ public class CubeBase : MonoBehaviour
 	public Color CubeCurrentColor { get; set; }
 	private Renderer cubeRenderer;
 	protected float TransparentTimer = 0.1f;
+	[field:SerializeField] public CubeType CubeType { get; set; }
+
 
 	private void Awake()
 	{
@@ -43,4 +45,11 @@ public class CubeBase : MonoBehaviour
 		Material uniqueMaterial = cubeRenderer.material;
 		uniqueMaterial.color = new Color(cubeRenderer.material.color.r, cubeRenderer.material.color.g, cubeRenderer.material.color.b, 1f);
 	}
+}
+
+public enum CubeType
+{
+	NormalCube,
+	TurnOffCube,
+	MovingCube,
 }
