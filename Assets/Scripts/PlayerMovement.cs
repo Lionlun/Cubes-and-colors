@@ -14,7 +14,7 @@ public class PlayerMovement : MonoBehaviour
 
 	[SerializeField] private Transform finishLedgePosition;
 
-	private CharacterController character;
+	private CharacterController characterController;
 
 	private float maxSpeed = 8.5f;
 	private float acceleration = 30f;
@@ -38,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private AudioClip jumpSound;
 
 	[SerializeField] private Animator animator;
+	[SerializeField] private LedgeDetection ledgeDetection;
 
 	private void OnEnable()
 	{
@@ -53,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private void Start()
 	{
-		character = GetComponent<CharacterController>();
+		characterController = GetComponent<CharacterController>();
 	}
 
 	private void Update()
@@ -146,7 +147,7 @@ public class PlayerMovement : MonoBehaviour
 		}
 
 		var velocity = new Vector3(horizontalSpeed, 0, verticalSpeed);
-		character.Move(velocity * Time.deltaTime);
+		characterController.Move(velocity * Time.deltaTime);
 	}
 
 	private void Rotation()
@@ -174,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
 	private void DoGravity()
 	{
 		verticalVelocity += gravity * Time.deltaTime;
-		character.Move(Vector3.up * verticalVelocity * downVelocityMultiplier * Time.deltaTime);
+		characterController.Move(Vector3.up * verticalVelocity * downVelocityMultiplier * Time.deltaTime);
 	}
 
 	private bool CheckIsGrounded()
@@ -213,11 +214,17 @@ public class PlayerMovement : MonoBehaviour
 	{
 		canMove = true;
 	}
-	public void FinishClimb()
+	public async void FinishClimb()
 	{
 		transform.position = finishLedgePosition.position;
 		canMove = true;
-	}
+
+		if (ledgeDetection.CurrentCubeToClimb != null)
+		{
+            await Task.Delay(100);
+            Physics.IgnoreCollision(characterController, ledgeDetection.CurrentCubeToClimb, false);
+        }
+    }
 
 	public float GetVerticalVelocity()
 	{

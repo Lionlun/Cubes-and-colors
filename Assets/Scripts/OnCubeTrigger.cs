@@ -12,8 +12,15 @@ public class OnCubeTrigger : MonoBehaviour
 	
 	private float comboTimer;
 	private float comboTime = 1.2f;
-	
-	private void Update()
+
+	CharacterController characterController;
+
+    private void Start()
+    {
+        characterController = GetComponent<CharacterController>();	
+    }
+
+    private void Update()
 	{
 		DetectOnCubeJump();
 		HandleTimer();
@@ -37,6 +44,13 @@ public class OnCubeTrigger : MonoBehaviour
 			comboPitch+=0.05f;
 			comboCounter++;
 			comboTimer = comboTime;
+
+			if(characterController.velocity.y < -1)
+			{
+                hit.transform.GetComponent<CubeBase>().GetVelocity(characterController.velocity);
+				Debug.Log("Transfered velocity is " + characterController.velocity);
+            }
+			
 		}
 		else
 		{

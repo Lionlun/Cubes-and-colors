@@ -36,13 +36,13 @@ public class CubeSpawner : MonoBehaviour
 			var newPosition = lastPosition + GetRandomOffset();
 
 
-            if (i % 20 == 0)
+            if (i!= 0 && i % 20 == 0)
             {
                 var newTurnOffCube = Instantiate(turnOffCube, newPosition, Quaternion.identity);
                 lastPosition = newTurnOffCube.transform.position;
                 Cubes.Add(newTurnOffCube);
             }
-            else if (i % 10 == 0)
+            else if (i != 0 && i % 10 == 0)
 			{
 				var newMovingCube = Instantiate(movingCube, newPosition, Quaternion.identity);
 				lastPosition = newMovingCube.transform.position;

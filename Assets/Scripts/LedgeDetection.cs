@@ -18,8 +18,10 @@ public class LedgeDetection : MonoBehaviour
 	[SerializeField] private PlayerMovement player;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Animator animator;
+	[SerializeField] private CharacterController characterController;
+	public Collider CurrentCubeToClimb { get; private set; }
 
-	private void FixedUpdate()
+    private void FixedUpdate()
 	{
 		CheckLedge();
     }
@@ -29,7 +31,7 @@ public class LedgeDetection : MonoBehaviour
 		if (onLedge)
 		{
 			animator.SetTrigger("Climb");
-		}
+        }
 	}
 
 	private void CheckLedge()
@@ -51,12 +53,34 @@ public class LedgeDetection : MonoBehaviour
 		if (onLedge)
 		{	
 			player.Stop();
-			CalculateCorrectOffset();
+
+			SetCurrentCubeToClimb();
+           
+            CalculateCorrectOffset();
             Climb();
+        }
+		else
+		{
+			//CurrentCubeToClimb = null;
         }
 	}
 
-	private void MoveTowardsLedge()
+    private void SetCurrentCubeToClimb()
+	{
+        Ray ray = new Ray(wallCheckUp.position, transform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
+        {
+            CurrentCubeToClimb = hit.transform.GetComponent<Collider>();
+            if (CurrentCubeToClimb != null)
+            {
+                Physics.IgnoreCollision(characterController, CurrentCubeToClimb);
+            }
+        }
+    }
+
+    private void MoveTowardsLedge()
 	{
 		if (isAlreadyMoved)
 		{
@@ -68,9 +92,15 @@ public class LedgeDetection : MonoBehaviour
 
 		if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
 		{
-			var direction = hit.point - player.transform.position;
+			CurrentCubeToClimb = hit.transform.GetComponent<Collider>();
+            var direction = hit.point - player.transform.position;
 			player.transform.position += new Vector3(direction.x, 0, direction.z).normalized * hit.distance/1.5f;
-		}
+
+            if (CurrentCubeToClimb != null)
+            {
+                Physics.IgnoreCollision(characterController, CurrentCubeToClimb);
+            }
+        }
 	}
 
 	private  void CalculateCorrectOffset()
