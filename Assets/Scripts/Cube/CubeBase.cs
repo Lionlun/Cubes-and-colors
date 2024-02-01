@@ -7,6 +7,8 @@ public class CubeBase : MonoBehaviour
 	protected float TransparentTimer = 0.1f;
 	[field:SerializeField] public CubeType CubeType { get; set; }
 	protected Rigidbody Rb;
+	private float getVelocityCooldown;
+	private float getVelocityCooldownRefresh = 0.5f;
 
 
 	private void Awake()
@@ -19,7 +21,8 @@ public class CubeBase : MonoBehaviour
 		Rb = GetComponent<Rigidbody>();
 		CubeCurrentColor = RandomEnum.GetRandomEnum<CubeColor>().GetColor();
 		SetColor(CubeCurrentColor);
-	}
+        getVelocityCooldown = getVelocityCooldownRefresh;
+    }
 
 	private void Update()
 	{
@@ -28,6 +31,12 @@ public class CubeBase : MonoBehaviour
 			GoOpaque();
 		}
 		TransparentTimer -= Time.deltaTime;
+
+		if(getVelocityCooldown > 0)
+		{
+			getVelocityCooldown -= Time.deltaTime;
+		}
+
 	}
 
 	protected void SetColor(Color color)
@@ -50,10 +59,16 @@ public class CubeBase : MonoBehaviour
 
 	public void GetVelocity(Vector3 velocity)
 	{
-		if(velocity.y < 0)
+        if (getVelocityCooldown > 0)
+        {
+			return;
+        }
+        if (velocity.y < 0)
 		{
 			Debug.Log("received velocity is " +  velocity);
-            Rb.AddForce(new Vector3(0, velocity.y, 0), ForceMode.Impulse);
+			var additionalVelocity = velocity.y - Rb.velocity.y;
+            Rb.AddForce(new Vector3(0, additionalVelocity, 0), ForceMode.Impulse);
+			getVelocityCooldown = getVelocityCooldownRefresh;
         }
 	}
 }

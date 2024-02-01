@@ -33,7 +33,13 @@ public class OnCubeTrigger : MonoBehaviour
 
 		if (Physics.Raycast(ray, out hit, triggerDistance, groundLayer))
 		{
-			if (isTriggered || lastId == hit.transform.GetInstanceID())
+            if (characterController.velocity.y < -1)
+            {
+                hit.transform.GetComponent<CubeBase>().GetVelocity(characterController.velocity);
+                Debug.Log("Transfered velocity is " + characterController.velocity);
+            }
+
+            if (isTriggered || lastId == hit.transform.GetInstanceID())
 			{
 				return;
 			}
@@ -44,13 +50,6 @@ public class OnCubeTrigger : MonoBehaviour
 			comboPitch+=0.05f;
 			comboCounter++;
 			comboTimer = comboTime;
-
-			if(characterController.velocity.y < -1)
-			{
-                hit.transform.GetComponent<CubeBase>().GetVelocity(characterController.velocity);
-				Debug.Log("Transfered velocity is " + characterController.velocity);
-            }
-			
 		}
 		else
 		{
