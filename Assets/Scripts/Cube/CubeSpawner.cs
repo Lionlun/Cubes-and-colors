@@ -9,6 +9,7 @@ public class CubeSpawner : MonoBehaviour
 	[SerializeField] private SpawnCube spawnCube;
 	[SerializeField] private MovingCube movingCube;
 	[SerializeField] private TurnOffCube turnOffCube;
+	[SerializeField] private Floor floor;
 	private Vector3 lastPosition;
 	private float previousRandomX = 0;
 	[SerializeField] private HeightMeasurement heightMeasurement;
@@ -59,7 +60,8 @@ public class CubeSpawner : MonoBehaviour
 		var spawnCubePosition = lastPosition + GetRandomOffset();
 		var newSpawnCube = Instantiate(spawnCube, spawnCubePosition, Quaternion.identity);
 		lastPosition = newSpawnCube.transform.position;
-	}
+		var floor = Instantiate(this.floor, lastPosition + new Vector3(13, -2, 0), Quaternion.identity);
+    }
 
 	private Vector3 GetRandomOffset()
 	{

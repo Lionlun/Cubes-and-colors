@@ -35,7 +35,7 @@ public class OnCubeTrigger : MonoBehaviour
 		{
             if (characterController.velocity.y < -1)
             {
-                hit.transform.GetComponent<CubeBase>().GetVelocity(characterController.velocity);
+                hit.transform.GetComponent<CubeBase>()?.GetVelocity(characterController.velocity);
                 Debug.Log("Transfered velocity is " + characterController.velocity);
             }
 
