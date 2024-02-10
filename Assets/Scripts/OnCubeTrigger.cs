@@ -13,10 +13,12 @@ public class OnCubeTrigger : MonoBehaviour
 	private float comboTimer;
 	private float comboTime = 1.2f;
 
-	CharacterController characterController;
+	private CharacterController characterController;
+	private PlayerMovement playerMovement;
 
     private void Start()
     {
+        playerMovement = GetComponent<PlayerMovement>();
         characterController = GetComponent<CharacterController>();	
     }
 
@@ -31,6 +33,34 @@ public class OnCubeTrigger : MonoBehaviour
 		Ray ray = new Ray(transform.position, -transform.up);
 		RaycastHit hit;
 
+        Vector3 p1 = transform.position + characterController.center;
+
+        if (Physics.SphereCast(p1, characterController.height/2, Vector3.down, out hit, 0.5f))
+        {
+            if (characterController.velocity.y < -1)
+            {
+                hit.transform.GetComponent<CubeBase>()?.GetVelocity(characterController.velocity);
+            }
+
+            if (isTriggered || lastId == hit.transform.GetInstanceID())
+            {
+                return;
+            }
+
+            lastId = hit.transform.GetInstanceID();
+            isTriggered = true;
+            playerMovement.SetIsGrounded(true);
+            GlobalEvents.SendOnPitchedSoundTriggered(onCubeJumpSound, comboPitch);
+            comboPitch += 0.05f;
+            comboCounter++;
+            comboTimer = comboTime;
+        }
+        else
+        {
+            isTriggered = false;
+        }
+
+		/*
 		if (Physics.Raycast(ray, out hit, triggerDistance, groundLayer))
 		{
             if (characterController.velocity.y < -1)
@@ -54,7 +84,7 @@ public class OnCubeTrigger : MonoBehaviour
 		else
 		{
 			isTriggered = false;
-		}
+		}*/
 	}
 
 	private void HandleTimer()

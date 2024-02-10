@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(CharacterController))]
@@ -9,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private Joystick joystick;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Transform groundChecker;
-	[SerializeField] private float checkGroundRadius = 0.4f;
+	[SerializeField] private float checkGroundRadius = 0.3f;
 	[SerializeField] private float jumpHeight = 6f;
 
 	[SerializeField] private Transform finishLedgePosition;
@@ -25,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
 	private float verticalVelocity;
 	private float gravity = -40f;
 	private bool isGrounded;
+	private bool canJump;
+	private bool canDoubleJump;
 
 	private float jumpBufferTime = 0.1f;
 	private float jumpBufferCounter;
@@ -39,17 +42,21 @@ public class PlayerMovement : MonoBehaviour
 
 	[SerializeField] private Animator animator;
 	[SerializeField] private LedgeDetection ledgeDetection;
+	private float delayAfterJump =0.5f;
+	private float delayForSecondJump = 0.3f;
 
 	private void OnEnable()
 	{
 		InputManager.OnTouchStarted += HandleJumpBuffer;
-		InputManager.OnTouchEnded += GoDown;
+        InputManager.OnTouchStarted += Jump;
+        InputManager.OnTouchEnded += GoDown;
 	}
 
 	private void OnDisable()
 	{
 		InputManager.OnTouchStarted -= HandleJumpBuffer;
-		InputManager.OnTouchEnded -= GoDown;
+        InputManager.OnTouchStarted -= Jump;
+        InputManager.OnTouchEnded -= GoDown;
 	}
 
 	private void Start()
@@ -66,20 +73,27 @@ public class PlayerMovement : MonoBehaviour
 			verticalVelocity = 0;
 		}
 
-		if (isGrounded)
+		if (isGrounded && delayAfterJump <=0)
 		{
 			coyoteTimeCounter = coyoteTime;
 			downVelocityMultiplier = 1f;
-		}
+			canDoubleJump = true;
+			canJump = true;
+
+        }
 		else
 		{
 			coyoteTimeCounter -= Time.deltaTime;
+			delayAfterJump -= Time.deltaTime;
 		}
 
 		jumpBufferCounter -= Time.deltaTime;
-		Jump();
+		//Jump();
 
-	
+		if(delayForSecondJump >= 0)
+		{
+			delayForSecondJump -= Time.deltaTime;
+		}
 		HandleAnimation();
 
 		if (canMove)
@@ -159,13 +173,37 @@ public class PlayerMovement : MonoBehaviour
 
 	public void Jump()
 	{
-		if (coyoteTimeCounter > 0 && jumpBufferCounter > 0)
+		if (canJump)
 		{
 			verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
 			coyoteTimeCounter = 0f;
 			jumpBufferCounter = 0f;
-		}
+			delayAfterJump = 0.5f;
+			delayForSecondJump = 0.3f;
+            canJump = false;
+        
+        }
+		else if(canDoubleJump && delayForSecondJump <= 0)
+		{
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+            coyoteTimeCounter = coyoteTime;
+            downVelocityMultiplier = 1f;
+            jumpBufferCounter = jumpBufferTime;
+            canDoubleJump = false;
+
+        }
 	}
+	public void DoubleJump()
+	{
+        /*if (canDoubleJump)
+        {
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+            coyoteTimeCounter = coyoteTime;
+            downVelocityMultiplier = 1f;
+            jumpBufferCounter = jumpBufferTime;
+            canDoubleJump = false;
+        }*/
+    }
 
 	private void HandleJumpBuffer()
 	{
@@ -199,7 +237,7 @@ public class PlayerMovement : MonoBehaviour
 		if(verticalVelocity > 0)
 		{
 			verticalVelocity = 0f;
-			downVelocityMultiplier = 1.4f;
+			downVelocityMultiplier = 1.6f;
 		}
 	}
 
@@ -214,19 +252,20 @@ public class PlayerMovement : MonoBehaviour
 	{
 		canMove = true;
 	}
-	public async void FinishClimb()
+	public void FinishClimb()
 	{
 		transform.position = finishLedgePosition.position;
-		canMove = true;
+        canMove = true;
 
-		if (ledgeDetection.CurrentCubeToClimb != null)
-		{
-            await Task.Delay(100);
-            Physics.IgnoreCollision(characterController, ledgeDetection.CurrentCubeToClimb, false);
-        }
     }
 
-	public float GetVerticalVelocity()
+	public void LedgeJump()
+	{
+        canMove = true;
+        verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+    }
+
+    public float GetVerticalVelocity()
 	{
 		return verticalVelocity;
 	}
@@ -238,5 +277,10 @@ public class PlayerMovement : MonoBehaviour
 	public void Follow(Vector3 direction)
 	{
 		transform.position += direction;
+	}
+
+	public void SetIsGrounded(bool isGrounded)
+	{
+		this.isGrounded = isGrounded;
 	}
 }

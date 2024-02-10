@@ -65,6 +65,7 @@ public class CubeBase : MonoBehaviour
         }
         if (velocity.y < 0)
 		{
+			Debug.Log("Velocity y is " +  velocity.y);	
 			Debug.Log("received velocity is " +  velocity);
 			var additionalVelocity = (velocity.y - Rb.velocity.y)*0.7f;
             Rb.AddForce(new Vector3(0, additionalVelocity, 0), ForceMode.Impulse);

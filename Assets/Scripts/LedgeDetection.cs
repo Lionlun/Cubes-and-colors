@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class LedgeDetection : MonoBehaviour
 {
 	private bool onWall;
-	private bool onWallUp;
+	private bool onWallForward;
 	private bool onWallDown;
 	private bool onLedge;
 	private bool isAlreadyMoved;
@@ -19,7 +20,6 @@ public class LedgeDetection : MonoBehaviour
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Animator animator;
 	[SerializeField] private CharacterController characterController;
-	public Collider CurrentCubeToClimb { get; private set; }
 
     private void FixedUpdate()
 	{
@@ -31,30 +31,46 @@ public class LedgeDetection : MonoBehaviour
 		if (onLedge)
 		{
 			animator.SetTrigger("Climb");
+			player.LedgeJump();
         }
-	}
+
+    }
 
 	private void CheckLedge()
 	{
-		onWallUp = Physics.Raycast(wallCheckUp.position, transform.forward, wallCheckRayDistance, groundLayer);
+		onWallForward = Physics.Raycast(wallCheckUp.position, transform.forward, wallCheckRayDistance, groundLayer);
+		var onWallBack = Physics.Raycast(wallCheckUp.position, -transform.forward, wallCheckRayDistance, groundLayer);
+        if (onWallForward || onWallBack)
+        {
+			onLedge = true;
+            /*Ray ray = new Ray(wallCheckUp.position, transform.forward);
+            RaycastHit hit;
+            onLedge = !Physics.Raycast(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0), transform.forward, wallCheckRayDistance, groundLayer);
+            if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
+            {
+                if (hit.transform.GetComponent<Collider>())
+                {
+                    Physics.IgnoreCollision(characterController, hit.transform.GetComponent<Collider>());
+					ResetCollision(hit.transform.GetComponent<Collider>());
+                }
+            }*/
 
-		if (onWallUp)
-		{
-			onLedge = !Physics.Raycast(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0), transform.forward, wallCheckRayDistance, groundLayer);
-			MoveTowardsLedge();
-		}
+            //MoveTowardsLedge();
+            //player.ContinueMovement();
+        }
 		else
 		{
 			onLedge = false;
-		}
+        }
 
-		animator.SetBool("OnLedge", onLedge);
 
-		if (onLedge)
+        
+
+        animator.SetBool("OnLedge", onLedge);
+
+		/*if (onLedge)
 		{	
-			player.Stop();
-
-			SetCurrentCubeToClimb();
+			//player.Stop();
            
             CalculateCorrectOffset();
             Climb();
@@ -62,22 +78,13 @@ public class LedgeDetection : MonoBehaviour
 		else
 		{
 			//CurrentCubeToClimb = null;
-        }
+        }*/
 	}
 
-    private void SetCurrentCubeToClimb()
+	private async void ResetCollision(Collider collider)
 	{
-        Ray ray = new Ray(wallCheckUp.position, transform.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
-        {
-            CurrentCubeToClimb = hit.transform.GetComponent<Collider>();
-            if (CurrentCubeToClimb != null)
-            {
-                Physics.IgnoreCollision(characterController, CurrentCubeToClimb);
-            }
-        }
+		await Task.Delay(200);
+        Physics.IgnoreCollision(characterController, collider, false);
     }
 
     private void MoveTowardsLedge()
@@ -92,14 +99,8 @@ public class LedgeDetection : MonoBehaviour
 
 		if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
 		{
-			CurrentCubeToClimb = hit.transform.GetComponent<Collider>();
             var direction = hit.point - player.transform.position;
 			player.transform.position += new Vector3(direction.x, 0, direction.z).normalized * hit.distance/1.5f;
-
-            if (CurrentCubeToClimb != null)
-            {
-                Physics.IgnoreCollision(characterController, CurrentCubeToClimb);
-            }
         }
 	}
 
