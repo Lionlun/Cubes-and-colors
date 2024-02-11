@@ -46,7 +46,13 @@ public class InputManager : MonoBehaviour
 	private async void SecondTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
-		OnTouchStarted?.Invoke();
+		if(touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x < Screen.width / 2)
+		{
+			return;
+		}
+        OnTouchStarted?.Invoke();
+        
+       // OnTouchStarted?.Invoke();
 	}
 
 	private void EndTouch(InputAction.CallbackContext context)
