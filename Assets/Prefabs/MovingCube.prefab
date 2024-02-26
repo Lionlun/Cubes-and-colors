@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <CubeType>k__BackingField: 2
-  playerLayer:
+  PlayerLayer:
     serializedVersion: 2
     m_Bits: 128
+  damping: 0.5

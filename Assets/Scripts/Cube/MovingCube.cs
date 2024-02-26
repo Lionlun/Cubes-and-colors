@@ -8,7 +8,6 @@ public class MovingCube : CubeBase
 	private float speed = 2.5f;
 	private float travelDistance = 5;
 	private bool isMovingForward;
-	[SerializeField] private LayerMask playerLayer;
 	private Vector3 direction;
 	private Vector3 destination;
 
@@ -28,7 +27,7 @@ public class MovingCube : CubeBase
 		SetDirection();
 		
 
-		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, PlayerLayer);
 
 		foreach (Collider collider in hitColliders)
 		{

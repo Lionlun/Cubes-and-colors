@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4240048678834133925}
   - component: {fileID: 3758602148024458734}
   - component: {fileID: 952946993891351449}
-  - component: {fileID: 4582093264104684619}
   - component: {fileID: 2493974862298538705}
   m_Layer: 6
   m_Name: NormalCube
@@ -131,34 +130,10 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 2
---- !u!145 &4582093264104684619
-SpringJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7942899067505911577}
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_Anchor: {x: 0, y: 0.009999999, z: 0}
-  m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
-  serializedVersion: 2
-  m_Spring: 10
-  m_Damper: 0.2
-  m_MinDistance: 0
-  m_MaxDistance: 0
-  m_Tolerance: 0.025
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_CollisionDetection: 0
 --- !u!114 &2493974862298538705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,6 +147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <CubeType>k__BackingField: 0
-  playerLayer:
+  PlayerLayer:
     serializedVersion: 2
     m_Bits: 128
+  damping: 0.7

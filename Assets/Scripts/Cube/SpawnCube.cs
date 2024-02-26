@@ -4,7 +4,6 @@ using UnityEngine;
 public class SpawnCube : CubeBase
 {
 	private bool isAlreadyTriggered;
-	[SerializeField] private LayerMask playerLayer;
 
 	private void Update()
 	{
@@ -13,7 +12,7 @@ public class SpawnCube : CubeBase
 			return;
 		}
 
-		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, PlayerLayer);
 
 		foreach (Collider collider in hitColliders)
 		{

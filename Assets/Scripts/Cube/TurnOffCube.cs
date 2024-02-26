@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class TurnOffCube : CubeBase
 {
-	[SerializeField] private LayerMask playerLayer;
 	private CubeController cubeController;
 	private bool isAlreadyTriggered;
 
@@ -13,7 +12,7 @@ public class TurnOffCube : CubeBase
 
 	private void FixedUpdate()
 	{
-		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, playerLayer);
+		Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, PlayerLayer);
 
 		if (hitColliders.Length > 0 ) 
 		{

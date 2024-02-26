@@ -15,6 +15,7 @@ public class OnCubeTrigger : MonoBehaviour
 
 	private CharacterController characterController;
 	private PlayerMovement playerMovement;
+	public CubeBase CurrentCube { get; private set; }
 
     private void Start()
     {
@@ -37,9 +38,11 @@ public class OnCubeTrigger : MonoBehaviour
 
         if (Physics.SphereCast(p1, characterController.height/2, Vector3.down, out hit, 0.5f))
         {
+            CurrentCube = hit.transform.GetComponent<CubeBase>();
+
             if (characterController.velocity.y < -1)
             {
-                hit.transform.GetComponent<CubeBase>()?.GetVelocity(characterController.velocity);
+                CurrentCube?.GetVelocity(characterController.velocity, playerMovement);
             }
 
             if (isTriggered || lastId == hit.transform.GetInstanceID())

@@ -44,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private LedgeDetection ledgeDetection;
 	private float delayAfterJump =0.5f;
 	private float delayForSecondJump = 0.3f;
+	[SerializeField] private OnCubeTrigger onCubeTrigger;
 
 	private void OnEnable()
 	{
@@ -108,7 +109,11 @@ public class PlayerMovement : MonoBehaviour
 			}
 		}
 
-	}
+        if (characterController.velocity.y < -100 && !isGrounded)
+        {
+			animator.SetTrigger("JumpApex");
+        }
+    }
 
 	private void HandleAnimation()
 	{
@@ -175,7 +180,23 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (canJump)
 		{
-			verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+			if(onCubeTrigger.CurrentCube != null)
+			{
+				if(onCubeTrigger.CurrentCube.Rb?.velocity.y > 0)
+				{
+                    verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity) + (onCubeTrigger.CurrentCube.Rb.velocity.y)/2;
+				}
+				else
+				{
+                    verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+                }
+			}
+			else
+			{
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+            }
+
+			
 			coyoteTimeCounter = 0f;
 			jumpBufferCounter = 0f;
 			delayAfterJump = 0.5f;
@@ -185,6 +206,7 @@ public class PlayerMovement : MonoBehaviour
         }
 		else if(canDoubleJump && delayForSecondJump <= 0)
 		{
+			animator.SetTrigger("DoubleJump");
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
             coyoteTimeCounter = coyoteTime;
             downVelocityMultiplier = 1f;
@@ -277,6 +299,10 @@ public class PlayerMovement : MonoBehaviour
 	public void Follow(Vector3 direction)
 	{
 		transform.position += direction;
+	}
+	public void Follow(Transform transform)
+	{
+		this.transform.position = transform.position;
 	}
 
 	public void SetIsGrounded(bool isGrounded)

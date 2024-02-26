@@ -10,7 +10,7 @@ public class CubeSpawner : MonoBehaviour
 	[SerializeField] private MovingCube movingCube;
 	[SerializeField] private TurnOffCube turnOffCube;
 	[SerializeField] private Floor floor;
-	[SerializeField] private CubeBase stairsCubes;
+	[SerializeField] private GameObject stairsCubes;
 	private Vector3 lastPosition;
 	private float previousRandomX = 0;
 	[SerializeField] private HeightMeasurement heightMeasurement;
@@ -59,10 +59,13 @@ public class CubeSpawner : MonoBehaviour
             }
 			if(random >90 && random <= 100)
 			{
-                var newStairsCube = Instantiate(stairsCubes, newPosition, Quaternion.identity);
-				var children = newStairsCube.GetComponentsInChildren<CubeBase>();
-                lastPosition = children[children.Length-1].transform.position;
-                Cubes.Add(newStairsCube);
+				for(int j = 0; j < 4; j++)
+                {
+                    var newStairsCube = Instantiate(cube, newPosition, Quaternion.identity);
+                    lastPosition = newStairsCube.transform.position;
+                    Cubes.Add(newStairsCube);
+                    newPosition += new Vector3(2.5f, 2.5f, 0);
+                }
             }
 		}
 
