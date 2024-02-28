@@ -151,3 +151,5 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   damping: 0.5
+  meshRenderer: {fileID: 4240048678834133925}
+  boxCollider: {fileID: 3758602148024458734}

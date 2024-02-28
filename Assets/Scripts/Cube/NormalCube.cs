@@ -13,7 +13,7 @@ public class NormalCube : CubeBase
             if (collider.GetComponentInParent<PlayerMovement>() != null)
             {
                 var player = collider.GetComponentInParent<PlayerMovement>();
-                player.Follow(Rb.velocity*Time.fixedDeltaTime);
+                player.FollowTransform(Rb.velocity*Time.fixedDeltaTime);
             }
 
         }

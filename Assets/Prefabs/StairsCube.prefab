@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 952946993891351449}
   - component: {fileID: 2493974862298538705}
   m_Layer: 6
-  m_Name: NormalCube
+  m_Name: StairsCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,4 +153,5 @@ MonoBehaviour:
   damping: 0.5
   meshRenderer: {fileID: 4240048678834133925}
   boxCollider: {fileID: 3758602148024458734}
-  downAmplitudeReducer: 2
+  downAmplitudeReducer: 5
+  pushForce: 20

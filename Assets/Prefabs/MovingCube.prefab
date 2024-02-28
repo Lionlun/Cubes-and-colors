@@ -133,7 +133,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &39787468015859512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,3 +151,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   damping: 0.5
+  meshRenderer: {fileID: 3470767931037228808}
+  boxCollider: {fileID: 1815530347523561765}
+  amplitudeReducer: 4

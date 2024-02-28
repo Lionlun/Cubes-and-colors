@@ -133,7 +133,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &7209740193068898878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,6 +151,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   damping: 0.5
+  meshRenderer: {fileID: 4897142121460461073}
+  boxCollider: {fileID: 2096397312089335846}
+  maxAmplitude: 5
 --- !u!1 &4677390178148215763
 GameObject:
   m_ObjectHideFlags: 0
@@ -284,7 +287,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &3652032931150476769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,6 +305,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   damping: 0.5
+  meshRenderer: {fileID: 38166821616456644}
+  boxCollider: {fileID: 8720447759404949104}
+  maxAmplitude: 5
 --- !u!1 &7510399794868517500
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,7 +441,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &3636480574584328675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,6 +459,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   damping: 0.5
+  meshRenderer: {fileID: 5870146986705456899}
+  boxCollider: {fileID: 6875121788718993541}
+  maxAmplitude: 5
 --- !u!1 &7942899067505911577
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,7 +630,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 122
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &204719634213528309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,3 +648,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   damping: 0.5
+  meshRenderer: {fileID: 1941596665640326}
+  boxCollider: {fileID: 7334026021712204752}
+  maxAmplitude: 5

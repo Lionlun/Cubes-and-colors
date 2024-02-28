@@ -109,7 +109,7 @@ public class CubeController : MonoBehaviour
 			{
 				continue;
 			}
-			cube.gameObject.SetActive(false);
+			cube.TurnOffCube();
 			Debug.Log("CubeDeactivated");
 		}
 	}
@@ -124,7 +124,7 @@ public class CubeController : MonoBehaviour
 			{
 				continue;
 			}
-			cube.gameObject.SetActive(true);
+            cube.TurnOnCube();
             Debug.Log("CubeActivated");
         }
 	}

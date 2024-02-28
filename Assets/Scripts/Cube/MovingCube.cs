@@ -34,7 +34,7 @@ public class MovingCube : CubeBase
 			if (collider.GetComponentInParent<PlayerMovement>() != null)
 			{
 				var player = collider.GetComponentInParent<PlayerMovement>();
-				player.Follow(direction * speed * Time.deltaTime);
+				player.FollowTransform(direction * speed * Time.deltaTime);
 			}
 		}
 

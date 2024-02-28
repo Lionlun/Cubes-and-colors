@@ -4,7 +4,7 @@ public class CameraFollow : MonoBehaviour
 {
     [SerializeField] private PlayerMovement player;
     private Vector3 cameraOffset = new Vector3(0 , 3, -7);
-	private float cameraSpeed = 30f;
+	private float cameraSpeed = 50f;
 	private float modifiedSpeed;
 
 	private void Update()

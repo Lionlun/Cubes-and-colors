@@ -296,17 +296,27 @@ public class PlayerMovement : MonoBehaviour
 	{
 		verticalVelocity = 30;
 	}
-	public void Follow(Vector3 direction)
+	public void FollowTransform(Vector3 direction)
 	{
 		transform.position += direction;
-	}
-	public void Follow(Transform transform)
+    }
+    public void FollowSimpleMove(Vector3 direction)
+    {
+        characterController.Move(direction);
+    }
+    public void Follow(Transform transform)
 	{
-		this.transform.position = transform.position;
+		var offset = 1f;
+		this.transform.position = new Vector3(this.transform.position.x, transform.position.y + offset, this.transform.position.z);
 	}
 
 	public void SetIsGrounded(bool isGrounded)
 	{
 		this.isGrounded = isGrounded;
 	}
+	public void TriggerJump(float force)
+	{
+		canJump = true;
+        verticalVelocity = force;
+    }
 }
