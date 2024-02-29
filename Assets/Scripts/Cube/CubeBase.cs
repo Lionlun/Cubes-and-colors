@@ -12,9 +12,10 @@ public class CubeBase : MonoBehaviour
 	private float getVelocityCooldown;
 	private float getVelocityCooldownRefresh = 0.5f;
 	private IEnumerator currentRoutine;
-	private float springSpeed = 10f;
+	private float springSpeed = 9f;
 	[SerializeField] protected LayerMask PlayerLayer;
 	private bool isFollowing;
+    private float cubeCoyoteTime;
     public float damping = 0.5f;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private BoxCollider boxCollider;
@@ -56,12 +57,18 @@ public class CubeBase : MonoBehaviour
 		isFollowing = false;
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, PlayerLayer);
 
+        if (!isFollowing)
+        {
+            cubeCoyoteTime -= Time.deltaTime;
+        }
+
         foreach (Collider collider in hitColliders)
         {
             if (collider.GetComponentInParent<PlayerMovement>() != null)
             {
                 var player = collider.GetComponentInParent<PlayerMovement>();
                 isFollowing = true;
+                cubeCoyoteTime = 0.2f;
             }
         }
     }
@@ -102,16 +109,6 @@ public class CubeBase : MonoBehaviour
             currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
             StartCoroutine(currentRoutine);
         }
-	
-        /*
-        if (velocity.y < 0)
-		{
-			Debug.Log("Velocity y is " +  velocity.y);	
-			Debug.Log("received velocity is " +  velocity);
-			var additionalVelocity = (velocity.y - Rb.velocity.y)*0.7f;
-            Rb.AddForce(new Vector3(0, additionalVelocity, 0), ForceMode.Impulse);
-			getVelocityCooldown = getVelocityCooldownRefresh;
-        }*/
 	}
 
 	public IEnumerator SpringMovement(Vector3 downPosition, Vector3 upPosition, PlayerMovement playerMovement)
@@ -136,22 +133,38 @@ public class CubeBase : MonoBehaviour
 
             yield return null;
         }
+
         Debug.Log("Amplitude is " + amplitude);
-        if (isFollowing && amplitude > 4)
+
+        while (Vector3.Distance(currentPosition, upPosition) > 3f)
+        {
+            playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
+            currentPosition = Vector3.Lerp(currentPosition, upPosition, Time.deltaTime * springSpeed*2);
+            // Apply damping to simulate spring effect
+            currentPosition += (transform.position - currentPosition) * damping;
+            transform.position = currentPosition;
+      
+            yield return null;
+        }
+
+        if (cubeCoyoteTime > 0 && amplitude > 4)
         {
             playerMovement.TriggerJump(pushForce);
         }
+        else if (cubeCoyoteTime > 0 && amplitude <= 4)
+        {
+            playerMovement.TriggerJump(pushForce / 2);
+        }
+
         while (Vector3.Distance(currentPosition, upPosition) > 1.5f)
         {
-            currentPosition = Vector3.Lerp(currentPosition, upPosition, Time.deltaTime * springSpeed*2);
+            currentPosition = Vector3.Lerp(currentPosition, upPosition, Time.deltaTime * springSpeed * 1.9f);
             // Apply damping to simulate spring effect
             currentPosition += (transform.position - currentPosition) * damping;
             transform.position = currentPosition;
 
             yield return null;
         }
-
- 
 
 
         var deltaSpeed = springSpeed;

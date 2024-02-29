@@ -319,4 +319,9 @@ public class PlayerMovement : MonoBehaviour
 		canJump = true;
         verticalVelocity = force;
     }
+
+	public void SetCanJump(bool canJump)
+	{
+		this.canJump = canJump;
+	}
 }
