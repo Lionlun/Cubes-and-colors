@@ -1227,6 +1227,7 @@ GameObject:
   m_Component:
   - component: {fileID: 963971492}
   - component: {fileID: 963971493}
+  - component: {fileID: 963971494}
   m_Layer: 0
   m_Name: InputManager
   m_TagString: Untagged
@@ -1262,6 +1263,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uIChecker: {fileID: 561873169}
+--- !u!114 &963971494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963971491}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6d3302dcfe96e429adc79c28e2fe09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minimumDistance: 1
+  maximumTime: 1
+  directionThreshold: 0.732
 --- !u!1 &981555090
 GameObject:
   m_ObjectHideFlags: 0
