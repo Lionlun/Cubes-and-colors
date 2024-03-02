@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
     private TouchControls touchControls;
 	[SerializeField] private UITouchChecker uIChecker;
 	private Camera mainCamera;
+	private bool isSwipeStarted;
 
 	private void Awake()
 	{
@@ -25,7 +26,7 @@ public class InputManager : MonoBehaviour
 	private void OnEnable()
 	{
 		touchControls.Enable();
-		touchControls.Touch.FirstTouchPress.started += ctx => StartTouch(ctx);
+		touchControls.Touch.FirstTouchPress.started += ctx => FirstTouch(ctx);
 		touchControls.Touch.SecondTouchPress.started += ctx => SecondTouch(ctx);
 		touchControls.Touch.FirstTouchPress.canceled += ctx => EndFirstTouch(ctx);
 		touchControls.Touch.SecondTouchPress.canceled += ctx => EndSecondTouch(ctx);
@@ -34,49 +35,84 @@ public class InputManager : MonoBehaviour
 	private void OnDisable()
 	{
 		touchControls.Disable();
-		touchControls.Touch.FirstTouchPress.started -= ctx => StartTouch(ctx);
+		touchControls.Touch.FirstTouchPress.started -= ctx => FirstTouch(ctx);
 		touchControls.Touch.SecondTouchPress.started -= ctx => SecondTouch(ctx);
 		touchControls.Touch.FirstTouchPress.canceled -= ctx => EndFirstTouch(ctx);
 		touchControls.Touch.SecondTouchPosition.canceled -= ctx => EndSecondTouch(ctx);
 	}
 
-	private async void StartTouch(InputAction.CallbackContext context)
+	private async void FirstTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
-		
-        OnStartSwipe?.Invoke(touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>(), (float)context.startTime);
+
+        if (touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>().x < Screen.width / 2)
+        {
+            OnStartSwipe?.Invoke(touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>(), (float)context.startTime);
+            isSwipeStarted = true;
+        }
+		else
+		{
+            OnTouchStarted?.Invoke();
+            Debug.Log("Touch started");
+        }
 
         if (!uIChecker.IsPointerOverUI())
 		{
-			OnTouchStarted?.Invoke();
-			Debug.Log("Touch started");
+		
 		}
-	}
-	private async void SecondTouch(InputAction.CallbackContext context)
+    }
+
+    private void EndFirstTouch(InputAction.CallbackContext context)
+    {
+        OnTouchEnded?.Invoke();
+
+        if (isSwipeStarted)
+        {
+            if (touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>().x > Screen.width / 2)
+            {
+                return;
+            }
+            if (touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x > Screen.width / 2)
+            {
+                return;
+            }
+            Debug.Log("invoke On end swipe");
+            OnEndSwipe?.Invoke(touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>(), (float)context.time);
+            isSwipeStarted = false;
+        }
+    }
+
+    private async void SecondTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
 
-        OnStartSwipe?.Invoke(touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>(), (float)context.startTime);
-
         if (touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x < Screen.width / 2)
 		{
-			return;
-		}
-        OnTouchStarted?.Invoke();
-	
-        
-       // OnTouchStarted?.Invoke();
-	}
-
-	private void EndFirstTouch(InputAction.CallbackContext context)
-	{
-		OnTouchEnded?.Invoke();
-        OnEndSwipe?.Invoke(touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>(), (float)context.time);
+            OnStartSwipe?.Invoke(touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>(), (float)context.startTime);
+            isSwipeStarted = true;
+        }
+		else
+		{
+            OnTouchStarted?.Invoke();
+        }
+  
+        // OnTouchStarted?.Invoke();
     }
 
 	private void EndSecondTouch(InputAction.CallbackContext context)
 	{
-        OnEndSwipe?.Invoke(touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>(), (float)context.time);
+		if(isSwipeStarted)
+		{
+            isSwipeStarted = false;
+            if (touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x > Screen.width / 2)
+            {
+                return;
+            }
+			Debug.Log("End second touch");
+            OnEndSwipe?.Invoke(touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>(), (float)context.time);
+            
+        }
+    
     }
 
 	public Vector2 PrimaryPosition()

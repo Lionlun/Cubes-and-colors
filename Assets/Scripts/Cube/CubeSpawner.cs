@@ -59,7 +59,7 @@ public class CubeSpawner : MonoBehaviour
             }
 			if(random >90 && random <= 100)
 			{
-				for(int j = 0; j < 4; j++)
+				for(int j = 0; j < 3; j++)
                 {
                     var newStairsCube = Instantiate(stairsCube, newPosition, Quaternion.identity);
                     lastPosition = newStairsCube.transform.position;
@@ -67,6 +67,12 @@ public class CubeSpawner : MonoBehaviour
                     Cubes.Add(newStairsCube);
                     newPosition += new Vector3(2.5f, 2.5f, 0);
                 }
+
+                var lastStairsCube = Instantiate(cube, newPosition, Quaternion.identity);
+                lastPosition = lastStairsCube.transform.position;
+                Cubes.Add(lastStairsCube);
+                newPosition += new Vector3(2.5f, 2.5f, 0);
+
             }
 		}
 
@@ -85,7 +91,7 @@ public class CubeSpawner : MonoBehaviour
 		}
 		previousRandomX = randomX;
 
-		var randomY = Random.Range(6,8f);
+		var randomY = Random.Range(6,10f);
 		var randomZ = Random.Range(-4,4);
 		return new Vector3(randomX,randomY,randomZ);
 	}

@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class SwipeDetection : MonoBehaviour
@@ -11,7 +13,7 @@ public class SwipeDetection : MonoBehaviour
     private float startTime;
     private Vector2 endPosition;
     private float endtime;
-
+    public static Action<Vector3> OnSwipeDetected;
 
     private void OnEnable()
     {
@@ -39,7 +41,7 @@ public class SwipeDetection : MonoBehaviour
 
     private void DetectSwipe()
     {
-        if(Vector2.Distance(startPosition, endPosition) >= minimumDistance && (endtime - startTime) <= maximumTime)
+        if (Vector2.Distance(startPosition, endPosition) >= minimumDistance && (endtime - startTime) <= maximumTime)
         {
             Vector3 direction = endPosition - startPosition;
             Vector2 direction2D = new Vector2(direction.x, direction.y).normalized;
@@ -49,9 +51,12 @@ public class SwipeDetection : MonoBehaviour
 
     public void SwipeDirection(Vector2 direction)
     {
+        OnSwipeDetected?.Invoke(direction);
+
         Debug.Log("Try to detect swipe direction");
         if (Vector2.Dot(Vector2.up, direction) > directionThreshold)
         {
+
             Debug.Log("Swipe Up");
         }
         if (Vector2.Dot(Vector2.down, direction) > directionThreshold)

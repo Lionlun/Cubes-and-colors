@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -45,12 +46,16 @@ public class PlayerMovement : MonoBehaviour
 	private float delayAfterJump =0.5f;
 	private float delayForSecondJump = 0.3f;
 	[SerializeField] private OnCubeTrigger onCubeTrigger;
+	private bool isGravityOn = true;
+
+	private IEnumerator dashRoutine;
 
 	private void OnEnable()
 	{
 		InputManager.OnTouchStarted += HandleJumpBuffer;
         InputManager.OnTouchStarted += Jump;
         InputManager.OnTouchEnded += GoDown;
+		SwipeDetection.OnSwipeDetected += StartDashCoroutine;
 	}
 
 	private void OnDisable()
@@ -58,7 +63,8 @@ public class PlayerMovement : MonoBehaviour
 		InputManager.OnTouchStarted -= HandleJumpBuffer;
         InputManager.OnTouchStarted -= Jump;
         InputManager.OnTouchEnded -= GoDown;
-	}
+        SwipeDetection.OnSwipeDetected -= StartDashCoroutine;
+    }
 
 	private void Start()
 	{
@@ -89,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
 		}
 
 		jumpBufferCounter -= Time.deltaTime;
-		//Jump();
 
 		if(delayForSecondJump >= 0)
 		{
@@ -178,54 +183,53 @@ public class PlayerMovement : MonoBehaviour
 
 	public void Jump()
 	{
-		if (canJump)
+		if(isGrounded)
 		{
-			if(onCubeTrigger.CurrentCube != null)
-			{
-				if(onCubeTrigger.CurrentCube.Rb?.velocity.y > 0)
-				{
-                    verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity) + (onCubeTrigger.CurrentCube.Rb.velocity.y)/2;
-				}
-				else
-				{
+            if (canJump)
+            {
+                if (onCubeTrigger.CurrentCube != null)
+                {
+                    if (onCubeTrigger.CurrentCube.Rb?.velocity.y > 0)
+                    {
+                        verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity) + (onCubeTrigger.CurrentCube.Rb.velocity.y) / 2;
+                    }
+                    else
+                    {
+                        verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+                    }
+                }
+                else
+                {
                     verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
                 }
-			}
-			else
-			{
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+
+
+                coyoteTimeCounter = 0f;
+                jumpBufferCounter = 0f;
+                delayAfterJump = 0.5f;
+                delayForSecondJump = 0.3f;
+                canJump = false;
+
+            }
+        }
+		else
+		{
+            animator.SetTrigger("DoubleJump");
+
+            if (dashRoutine != null)
+            {
+                StopCoroutine(dashRoutine);
+                dashRoutine = null;
             }
 
-			
-			coyoteTimeCounter = 0f;
-			jumpBufferCounter = 0f;
-			delayAfterJump = 0.5f;
-			delayForSecondJump = 0.3f;
-            canJump = false;
-        
-        }
-		else if(canDoubleJump && delayForSecondJump <= 0)
-		{
-			animator.SetTrigger("DoubleJump");
+            isGravityOn = true;
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+            verticalVelocity = -verticalVelocity * 2;
             coyoteTimeCounter = coyoteTime;
             downVelocityMultiplier = 1f;
             jumpBufferCounter = jumpBufferTime;
-            canDoubleJump = false;
-
         }
 	}
-	public void DoubleJump()
-	{
-        /*if (canDoubleJump)
-        {
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
-            coyoteTimeCounter = coyoteTime;
-            downVelocityMultiplier = 1f;
-            jumpBufferCounter = jumpBufferTime;
-            canDoubleJump = false;
-        }*/
-    }
 
 	private void HandleJumpBuffer()
 	{
@@ -234,8 +238,12 @@ public class PlayerMovement : MonoBehaviour
 
 	private void DoGravity()
 	{
-		verticalVelocity += gravity * Time.deltaTime;
-		characterController.Move(Vector3.up * verticalVelocity * downVelocityMultiplier * Time.deltaTime);
+		if (isGravityOn)
+		{
+            verticalVelocity += gravity * Time.deltaTime;
+            characterController.Move(Vector3.up * verticalVelocity * downVelocityMultiplier * Time.deltaTime);
+        }
+	
 	}
 
 	private bool CheckIsGrounded()
@@ -324,4 +332,42 @@ public class PlayerMovement : MonoBehaviour
 	{
 		this.canJump = canJump;
 	}
+
+	public void StartDashCoroutine(Vector3 direction)
+	{
+		/*if(isGrounded)
+		{
+			return;
+		}
+		if(dashRoutine !=null)
+		{
+			StopCoroutine(dashRoutine);
+            StartCoroutine(dashRoutine);
+			Debug.Log("Dash routine wasnt null");
+        }
+		else
+		{
+            dashRoutine = DashRoutine(direction);
+            StartCoroutine(dashRoutine);
+            Debug.Log("Dash routine was null");
+        }*/
+    }
+	
+	public IEnumerator DashRoutine(Vector3 direction)
+	{
+		Debug.Log("Dash");
+		var modifiedDirection = new Vector3(direction.x, 0, direction.y);
+		var dashDistance = 15;
+		var dashSpeed = 30f;
+		var destination = transform.position + modifiedDirection * dashDistance;
+		isGravityOn = false;
+
+        for (int i = 0; i < dashDistance; i++)
+		{
+            characterController.Move(modifiedDirection * dashSpeed * Time.deltaTime);
+            yield return null;
+        }
+		isGravityOn = true;
+		dashRoutine = null;
+    }
 }
