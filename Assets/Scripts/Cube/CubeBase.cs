@@ -103,7 +103,6 @@ public class CubeBase : MonoBehaviour
 		}
 		var downPosition = transform.position + velocity/4;
 		var upPosition  = transform.position - velocity/4;
-        Debug.Log("Try to spring movement");
         if (currentRoutine == null)
 		{
             currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
@@ -113,7 +112,6 @@ public class CubeBase : MonoBehaviour
 
 	public IEnumerator SpringMovement(Vector3 downPosition, Vector3 upPosition, PlayerMovement playerMovement)
 	{
-        Debug.Log("Spring movement started");
 		var defaultPosition = transform.position;
         var amplitude = Vector3.Distance(upPosition, downPosition);
 
@@ -133,8 +131,6 @@ public class CubeBase : MonoBehaviour
 
             yield return null;
         }
-
-        Debug.Log("Amplitude is " + amplitude);
 
         while (Vector3.Distance(currentPosition, upPosition) > 3f)
         {

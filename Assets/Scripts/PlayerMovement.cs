@@ -1,14 +1,18 @@
 using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.UIElements;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-	[SerializeField] private Joystick joystick;
+    [SerializeField]private LineRenderer lineRenderer;
+
+    [SerializeField] private Joystick joystick;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Transform groundChecker;
 	[SerializeField] private float checkGroundRadius = 0.3f;
@@ -18,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private CharacterController characterController;
 
-	private float maxSpeed = 8.5f;
+	private float maxSpeed = 10f; //8/5
 	private float acceleration = 30f;
 	private float deceleration = 20f;
 	float verticalSpeed = 0;
@@ -47,8 +51,7 @@ public class PlayerMovement : MonoBehaviour
 	private float delayForSecondJump = 0.3f;
 	[SerializeField] private OnCubeTrigger onCubeTrigger;
 	private bool isGravityOn = true;
-
-	private IEnumerator dashRoutine;
+	[SerializeField] private LayerMask cubeLayer;
 
 	private void OnEnable()
 	{
@@ -142,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
-	private void Move()
+    private void Move()
 	{
 		//float horizontalSpeedDif = maxSpeed - horizontalSpeed;
 		//float verticalSpeedDif = maxSpeed - verticalSpeed;
@@ -209,29 +212,92 @@ public class PlayerMovement : MonoBehaviour
                 delayAfterJump = 0.5f;
                 delayForSecondJump = 0.3f;
                 canJump = false;
-
             }
         }
 		else
 		{
-            animator.SetTrigger("DoubleJump");
-
-            if (dashRoutine != null)
-            {
-                StopCoroutine(dashRoutine);
-                dashRoutine = null;
-            }
-
-            isGravityOn = true;
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
-            verticalVelocity = -verticalVelocity * 2;
-            coyoteTimeCounter = coyoteTime;
-            downVelocityMultiplier = 1f;
-            jumpBufferCounter = jumpBufferTime;
+			Dive();
         }
 	}
 
-	private void HandleJumpBuffer()
+	public void Dive()
+	{
+
+        RaycastHit hit;
+
+        var points = new Vector3[4] 
+		{
+			new Vector3(-1f, 0f, 0),
+			new Vector3(1f, 0f, 0),
+			new Vector3(0, 0f, 1f),
+			new Vector3(0, 0f, -1f)
+		};
+
+        foreach (Vector3 point in points)
+        {
+            Vector3 position = transform.position + point; // Adjust point position relative to the object
+            if (Physics.Raycast(position, Vector3.down, out hit))
+            {
+
+                if (hit.collider.gameObject.GetComponent<NormalCube>() != null)
+                {
+
+                    var cube = hit.collider.gameObject.GetComponent<NormalCube>();
+                    var direction = characterController.transform.position - cube.transform.position;
+                    var modifiedDirection = new Vector3(direction.x, 0, direction.z);
+                    StartCoroutine(CorrectPositionToCubeCenter(cube.transform));
+                    //characterController.Move(modifiedDirection);
+
+
+                    var requieredPosition = new Vector3(cube.transform.position.x, transform.position.y, cube.transform.position.z);
+                    //transform.position = requieredPosition;
+
+                    Debug.Log("DiveTowardsCube");
+                    animator.SetTrigger("DoubleJump");
+                    isGravityOn = true;
+                    verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+                    verticalVelocity = -verticalVelocity * 2;
+                    coyoteTimeCounter = coyoteTime;
+                    downVelocityMultiplier = 1f;
+                    jumpBufferCounter = jumpBufferTime;
+                    return;
+                }
+            }
+        }
+
+        Debug.Log("Dive down");
+        animator.SetTrigger("DoubleJump");
+
+        isGravityOn = true;
+        verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+        verticalVelocity = -verticalVelocity * 2;
+        coyoteTimeCounter = coyoteTime;
+        downVelocityMultiplier = 1f;
+        jumpBufferCounter = jumpBufferTime;
+    }
+
+	private IEnumerator CorrectPositionToCubeCenter(Transform cubeTransform)
+	{
+		while (transform.position.x != cubeTransform.position.x && transform.position.z != cubeTransform.position.z)
+		{
+			if(isGrounded)
+			{
+				break;
+			}
+			if(transform.position.y <= cubeTransform.position.y)
+			{
+				break;
+			}
+			transform.position = Vector3.Lerp(transform.position, new Vector3(cubeTransform.position.x, transform.position.y, cubeTransform.position.z), Time.deltaTime*5);
+			yield return null;
+		}
+        //var requieredPosition = new Vector3(cubeTransform.transform.position.x, transform.position.y, cubeTransform.transform.position.z);
+        //transform.position = requieredPosition;
+		yield return null;
+    }
+
+
+    private void HandleJumpBuffer()
 	{
 		jumpBufferCounter = jumpBufferTime;
 	}
@@ -245,6 +311,8 @@ public class PlayerMovement : MonoBehaviour
         }
 	
 	}
+
+
 
 	private bool CheckIsGrounded()
 	{
@@ -368,6 +436,5 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 		isGravityOn = true;
-		dashRoutine = null;
     }
 }
