@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 68aeb9f1691a23d4bbb60324e211b7c5, type: 2}
+  - {fileID: 2100000, guid: 25d0f4b1e05e03a439dc5e77cf2a5803, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -155,3 +155,5 @@ MonoBehaviour:
   boxCollider: {fileID: 3758602148024458734}
   downAmplitudeReducer: 5
   pushForce: 20
+  IsSetColor: 1
+  setColor: {r: 1, g: 0.4509804, b: 0.49019608, a: 1}
