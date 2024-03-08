@@ -153,3 +153,8 @@ MonoBehaviour:
   damping: 0.5
   meshRenderer: {fileID: 4240048678834133925}
   boxCollider: {fileID: 3758602148024458734}
+  downAmplitudeReducer: 2
+  pushForce: 30
+  IsSetColor: 0
+  setColor: {r: 0, g: 0, b: 0, a: 0}
+  turnOffFX: {fileID: 0}
