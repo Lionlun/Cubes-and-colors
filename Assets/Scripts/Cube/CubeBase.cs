@@ -23,6 +23,12 @@ public class CubeBase : MonoBehaviour
     [SerializeField] private float downAmplitudeReducer = 4f;
     [SerializeField] private float pushForce = 30f;
 
+    [SerializeField] private bool IsSetColor;
+    [SerializeField] private Color setColor;
+    [SerializeField] private ParticleSystem turnOffFX;
+    private Vector3 defaultPosition;
+    private bool isCollided;
+
     private void Awake()
 	{
 		cubeRenderer = GetComponent<Renderer>();
@@ -31,8 +37,18 @@ public class CubeBase : MonoBehaviour
 	private void Start()
 	{
 		Rb = GetComponent<Rigidbody>();
-		CubeCurrentColor = RandomEnum.GetRandomEnum<CubeColor>().GetColor();
-		SetColor(CubeCurrentColor);
+
+        if (IsSetColor)
+        {
+            CubeCurrentColor = setColor;
+            SetColor(CubeCurrentColor);
+        }
+        else
+        {
+            CubeCurrentColor = RandomEnum.GetRandomEnum<CubeColor>().GetColor();
+            SetColor(CubeCurrentColor);
+        }
+		
         getVelocityCooldown = getVelocityCooldownRefresh;
     }
 
@@ -48,10 +64,8 @@ public class CubeBase : MonoBehaviour
 		{
 			getVelocityCooldown -= Time.deltaTime;
 		}
-
-
-
 	}
+
     private void LateUpdate()
     {
 		isFollowing = false;
@@ -93,18 +107,29 @@ public class CubeBase : MonoBehaviour
 
 	public void GetVelocity(Vector3 velocity, PlayerMovement playerMovement)
 	{
-        if (getVelocityCooldown > 0)
+        /*if (getVelocityCooldown > 0)
         {
+            Debug.Log("Velocity cooldown is not refreshed");
             return;
-        }
+        }*/
         if (velocity.y > -5)
 		{
+            Debug.Log("Velocity is too low");
 			return;
 		}
-		var downPosition = transform.position + velocity/4;
-		var upPosition  = transform.position - velocity/4;
+		
         if (currentRoutine == null)
 		{
+            var downPosition = transform.position + velocity / 4;
+            var upPosition = transform.position - velocity / 4;
+            currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
+            StartCoroutine(currentRoutine);
+        }
+        else
+        {
+            var downPosition = defaultPosition + velocity / 4;
+            var upPosition = defaultPosition - velocity / 4;
+            StopCoroutine(currentRoutine);
             currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
             StartCoroutine(currentRoutine);
         }
@@ -112,12 +137,12 @@ public class CubeBase : MonoBehaviour
 
 	public IEnumerator SpringMovement(Vector3 downPosition, Vector3 upPosition, PlayerMovement playerMovement)
 	{
-		var defaultPosition = transform.position;
         var amplitude = Vector3.Distance(upPosition, downPosition);
 
         Vector3 currentPosition = transform.position;
         while (Vector3.Distance(currentPosition, downPosition) > downAmplitudeReducer)
         {
+            playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
             currentPosition = Vector3.Lerp(currentPosition, downPosition, Time.deltaTime * springSpeed);
             // Apply damping to simulate spring effect
 
@@ -127,6 +152,12 @@ public class CubeBase : MonoBehaviour
             if (isFollowing)
             {
                 playerMovement.FollowTransform(Vector3.down * Time.deltaTime * springSpeed);
+            }
+
+            if (isCollided)
+            {
+                isCollided = false;
+                break;
             }
 
             yield return null;
@@ -139,7 +170,13 @@ public class CubeBase : MonoBehaviour
             // Apply damping to simulate spring effect
             currentPosition += (transform.position - currentPosition) * damping;
             transform.position = currentPosition;
-      
+
+            if (isCollided)
+            {
+                isCollided = false;
+                break;
+            }
+
             yield return null;
         }
 
@@ -159,12 +196,18 @@ public class CubeBase : MonoBehaviour
             currentPosition += (transform.position - currentPosition) * damping;
             transform.position = currentPosition;
 
+            if (isCollided)
+            {
+                isCollided = false;
+                break;
+            }
+
             yield return null;
         }
 
 
         var deltaSpeed = springSpeed;
-        while (deltaSpeed > 10)
+        while (deltaSpeed > 15)
         {
             currentPosition = Vector3.Lerp(currentPosition, defaultPosition, Time.deltaTime * deltaSpeed);
             // Apply damping to simulate spring effect
@@ -174,18 +217,29 @@ public class CubeBase : MonoBehaviour
 
             yield return null;
         }
+
         while(!Mathf.Approximately(transform.position.y, defaultPosition.y))
         {
             transform.position = Vector3.MoveTowards(transform.position, defaultPosition, Time.deltaTime * deltaSpeed);
             yield return null;
         }
+
+        transform.position = defaultPosition;
         currentRoutine = null;
         getVelocityCooldown = getVelocityCooldownRefresh;
+        isCollided = false;
         yield return null;
 	}
 
     public void TurnOffCube()
     {
+        if(turnOffFX != null)
+        {
+            var main = turnOffFX.main;
+            main.startColor = CubeCurrentColor;
+            turnOffFX.Play();
+        }
+
         meshRenderer.enabled = false;
         boxCollider.enabled = false;
     }
@@ -198,6 +252,19 @@ public class CubeBase : MonoBehaviour
     public void SetAmplitudeReducer(float value)
     {
         downAmplitudeReducer = value;
+    }
+
+    public void SetDefaultPosition(Vector3 position)
+    {
+        defaultPosition = position;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.collider.gameObject.GetComponent<NormalCube>())
+        {
+            isCollided = true;
+        }
     }
 
 }

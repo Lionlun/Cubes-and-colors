@@ -42,18 +42,21 @@ public class CubeSpawner : MonoBehaviour
 			if(random <= 70)
 			{
                 var newNormalCube = Instantiate(cube, newPosition, Quaternion.identity);
+				newNormalCube.SetDefaultPosition(newPosition);
                 lastPosition = newNormalCube.transform.position;
                 Cubes.Add(newNormalCube);
             }
 			if(random >70 && random <= 80)
 			{
                 var newTurnOffCube = Instantiate(turnOffCube, newPosition, Quaternion.identity);
+                newTurnOffCube.SetDefaultPosition(newPosition);
                 lastPosition = newTurnOffCube.transform.position;
                 Cubes.Add(newTurnOffCube);
             }
 			if (random > 80 && random <= 90)
 			{
                 var newMovingCube = Instantiate(movingCube, newPosition, Quaternion.identity);
+				newMovingCube.SetDefaultPosition(newPosition);
                 lastPosition = newMovingCube.transform.position;
                 Cubes.Add(newMovingCube);
             }
@@ -62,6 +65,7 @@ public class CubeSpawner : MonoBehaviour
 				for(int j = 0; j < 3; j++)
                 {
                     var newStairsCube = Instantiate(stairsCube, newPosition, Quaternion.identity);
+					newStairsCube.SetDefaultPosition(newPosition);
                     lastPosition = newStairsCube.transform.position;
 					newStairsCube.SetAmplitudeReducer(10);
                     Cubes.Add(newStairsCube);
@@ -69,6 +73,7 @@ public class CubeSpawner : MonoBehaviour
                 }
 
                 var lastStairsCube = Instantiate(cube, newPosition, Quaternion.identity);
+				lastStairsCube.SetDefaultPosition(newPosition);
                 lastPosition = lastStairsCube.transform.position;
                 Cubes.Add(lastStairsCube);
                 newPosition += new Vector3(2.5f, 2.5f, 0);
@@ -78,7 +83,8 @@ public class CubeSpawner : MonoBehaviour
 
 		var spawnCubePosition = lastPosition + GetRandomOffset();
 		var newSpawnCube = Instantiate(spawnCube, spawnCubePosition, Quaternion.identity);
-		lastPosition = newSpawnCube.transform.position;
+		newSpawnCube.SetDefaultPosition(spawnCubePosition);
+        lastPosition = newSpawnCube.transform.position;
 		var floor = Instantiate(this.floor, lastPosition + new Vector3(13, -2, 0), Quaternion.identity);
     }
 

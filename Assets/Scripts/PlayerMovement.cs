@@ -15,7 +15,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Joystick joystick;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Transform groundChecker;
-	[SerializeField] private float checkGroundRadius = 0.3f;
+    [SerializeField] private Transform diveGroundChecker;
+    [SerializeField] private float checkGroundRadius = 0.3f;
 	[SerializeField] private float jumpHeight = 6f;
 
 	[SerializeField] private Transform finishLedgePosition;
@@ -30,14 +31,13 @@ public class PlayerMovement : MonoBehaviour
 
 	private float verticalVelocity;
 	private float gravity = -40f;
-	private bool isGrounded;
+	public bool IsGrounded { get; private set; }
 	private bool canJump;
-	private bool canDoubleJump;
 
 	private float jumpBufferTime = 0.1f;
 	private float jumpBufferCounter;
 
-	private float coyoteTime = 0.2f;
+	private float coyoteTime = 0.15f;
 	private float coyoteTimeCounter;
 	private float downVelocityMultiplier = 1f;
 
@@ -52,6 +52,7 @@ public class PlayerMovement : MonoBehaviour
 	[SerializeField] private OnCubeTrigger onCubeTrigger;
 	private bool isGravityOn = true;
 	[SerializeField] private LayerMask cubeLayer;
+	public bool IsDivingDown { get; set; }
 
 	private void OnEnable()
 	{
@@ -74,8 +75,18 @@ public class PlayerMovement : MonoBehaviour
 		characterController = GetComponent<CharacterController>();
 	}
 
-	private void Update()
+    private void FixedUpdate()
+    {
+
+    }
+
+    private void Update()
 	{
+		/*if (CheckCloseToGround())
+		{
+            animator.SetBool("IsDiving", false);
+        }*/
+
 		if (!canMove)
 		{
 			horizontalSpeed = 0;
@@ -83,11 +94,10 @@ public class PlayerMovement : MonoBehaviour
 			verticalVelocity = 0;
 		}
 
-		if (isGrounded && delayAfterJump <=0)
+		if (IsGrounded && delayAfterJump <=0)
 		{
 			coyoteTimeCounter = coyoteTime;
 			downVelocityMultiplier = 1f;
-			canDoubleJump = true;
 			canJump = true;
 
         }
@@ -117,7 +127,7 @@ public class PlayerMovement : MonoBehaviour
 			}
 		}
 
-        if (characterController.velocity.y < -100 && !isGrounded)
+        if (characterController.velocity.y < -100 && !IsGrounded)
         {
 			animator.SetTrigger("JumpApex");
         }
@@ -134,7 +144,7 @@ public class PlayerMovement : MonoBehaviour
 			animator.SetBool("IsRunning", false);
 		}
 
-		if (!isGrounded)
+		if (!IsGrounded)
 		{
 			animator.SetBool("IsJumping", true);
 			animator.SetBool("IsRunning", false);
@@ -186,7 +196,7 @@ public class PlayerMovement : MonoBehaviour
 
 	public void Jump()
 	{
-		if(isGrounded)
+		if(coyoteTimeCounter > 0)
 		{
             if (canJump)
             {
@@ -227,11 +237,11 @@ public class PlayerMovement : MonoBehaviour
 
         var points = new Vector3[4] 
 		{
-			new Vector3(-1f, 0f, 0),
-			new Vector3(1f, 0f, 0),
-			new Vector3(0, 0f, 1f),
-			new Vector3(0, 0f, -1f)
-		};
+			Vector3.forward,
+			Vector3.right,
+			Vector3.left,
+           -Vector3.forward,
+        };
 
         foreach (Vector3 point in points)
         {
@@ -253,7 +263,8 @@ public class PlayerMovement : MonoBehaviour
                     //transform.position = requieredPosition;
 
                     Debug.Log("DiveTowardsCube");
-                    animator.SetTrigger("DoubleJump");
+                    animator.SetBool("IsDiving", true);
+                    IsDivingDown = true;
                     isGravityOn = true;
                     verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
                     verticalVelocity = -verticalVelocity * 2;
@@ -266,7 +277,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Debug.Log("Dive down");
-        animator.SetTrigger("DoubleJump");
+        animator.SetBool("IsDiving", true);
+		IsDivingDown = true;
 
         isGravityOn = true;
         verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
@@ -280,7 +292,7 @@ public class PlayerMovement : MonoBehaviour
 	{
 		while (transform.position.x != cubeTransform.position.x && transform.position.z != cubeTransform.position.z)
 		{
-			if(isGrounded)
+			if(IsGrounded)
 			{
 				break;
 			}
@@ -320,14 +332,23 @@ public class PlayerMovement : MonoBehaviour
 		return result;
 	}
 
+	private bool CheckCloseToGround()
+	{
+		bool result = Physics.CheckSphere(diveGroundChecker.position, checkGroundRadius, groundLayer);
+		
+		return result;
+    }
+
 	private void HandleVelocityWhenGrounded()
 	{
-		isGrounded = CheckIsGrounded();
+		IsGrounded = CheckIsGrounded();
 
-		if (isGrounded && verticalVelocity < 0)
+		if (IsGrounded && verticalVelocity < 0)
 		{
 			verticalVelocity = -2;
-		}
+            animator.SetBool("IsDiving", false);
+            IsDivingDown = false;
+        }
 	}
 
 	private void GoDown()
@@ -388,7 +409,7 @@ public class PlayerMovement : MonoBehaviour
 
 	public void SetIsGrounded(bool isGrounded)
 	{
-		this.isGrounded = isGrounded;
+		this.IsGrounded = isGrounded;
 	}
 	public void TriggerJump(float force)
 	{
