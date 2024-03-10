@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,6 +10,7 @@ public class CubeController : MonoBehaviour
 	private int timer;
 	private int timeToDisappear = 10;
 	private CancellationTokenSource tokenSource = null;
+	private IEnumerator activationRoutine;
 
 	private void Start()
 	{
@@ -101,7 +103,14 @@ public class CubeController : MonoBehaviour
 
 	public void DeactivateOtherCubes()
 	{
-		Debug.Log("Try to deactivate");
+        if (activationRoutine != null)
+        {
+            StopCoroutine(activationRoutine);
+            activationRoutine = null;
+        }
+
+
+        Debug.Log("Try to deactivate");
 		var cubes = CubeSpawner.Cubes;
 		foreach (var cube in cubes)
 		{
@@ -114,20 +123,27 @@ public class CubeController : MonoBehaviour
 		}
 	}
 
-	public void ActivateOtherCubes()
+	public void StartCubeActivationRoutine()
 	{
+        activationRoutine = ActivationRoutine();
+        StartCoroutine(activationRoutine);
+	}
+
+	private IEnumerator ActivationRoutine()
+	{
+       yield return new WaitForSeconds(0.7f);
         Debug.Log("Try to activate");
         var cubes = CubeSpawner.Cubes;
-		foreach (var cube in cubes)
-		{
-			if (cube.CubeType == CubeType.TurnOffCube)
-			{
-				continue;
-			}
+        foreach (var cube in cubes)
+        {
+            if (cube.CubeType == CubeType.TurnOffCube)
+            {
+                continue;
+            }
             cube.TurnOnCube();
             Debug.Log("CubeActivated");
         }
-	}
+    }
 
 
 	private void OnApplicationQuit()

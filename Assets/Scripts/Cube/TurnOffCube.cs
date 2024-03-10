@@ -33,7 +33,7 @@ public class TurnOffCube : CubeBase
 		{
 			if(isAlreadyTriggered)
 			{
-                cubeController.ActivateOtherCubes();
+                cubeController.StartCubeActivationRoutine();
                 isAlreadyTriggered = false;
             }
 		}

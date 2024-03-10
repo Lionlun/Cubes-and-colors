@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NormalCube : CubeBase
 {
+
     private void FixedUpdate()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, 2f, PlayerLayer);
