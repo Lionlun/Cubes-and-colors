@@ -10,20 +10,20 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField]private LineRenderer lineRenderer;
+	[SerializeField] private LineRenderer lineRenderer;
 
-    [SerializeField] private Joystick joystick;
+	[SerializeField] private Joystick joystick;
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Transform groundChecker;
-    [SerializeField] private Transform diveGroundChecker;
-    [SerializeField] private float checkGroundRadius = 0.3f;
+	[SerializeField] private Transform diveGroundChecker;
+	[SerializeField] private float checkGroundRadius = 0.3f;
 	[SerializeField] private float jumpHeight = 6f;
 
 	[SerializeField] private Transform finishLedgePosition;
 
 	private CharacterController characterController;
 
-	private float maxSpeed = 10f; //8/5
+	private float maxSpeed = 9.5f; //8/5
 	private float acceleration = 30f;
 	private float deceleration = 20f;
 	float verticalSpeed = 0;
@@ -47,40 +47,46 @@ public class PlayerMovement : MonoBehaviour
 
 	[SerializeField] private Animator animator;
 	[SerializeField] private LedgeDetection ledgeDetection;
-	private float delayAfterJump =0.5f;
+	private float delayAfterJump = 0.5f;
 	private float delayForSecondJump = 0.3f;
 	[SerializeField] private OnCubeTrigger onCubeTrigger;
 	private bool isGravityOn = true;
 	[SerializeField] private LayerMask cubeLayer;
 	public bool IsDivingDown { get; set; }
+	public bool IsButtonDown { get; set; }
+	[SerializeField] private ParticleSystem fallingDownFX;
 
 	private void OnEnable()
 	{
 		InputManager.OnTouchStarted += HandleJumpBuffer;
-        InputManager.OnTouchStarted += Jump;
-        InputManager.OnTouchEnded += GoDown;
+		InputManager.OnTouchStarted += Jump;
+		InputManager.OnTouchEnded += GoDown;
+		InputManager.OnSecondEnded += CancelDive;
+		InputManager.OnTouchEnded += CancelDive;
 		SwipeDetection.OnSwipeDetected += StartDashCoroutine;
 	}
 
 	private void OnDisable()
 	{
 		InputManager.OnTouchStarted -= HandleJumpBuffer;
-        InputManager.OnTouchStarted -= Jump;
-        InputManager.OnTouchEnded -= GoDown;
-        SwipeDetection.OnSwipeDetected -= StartDashCoroutine;
-    }
+		InputManager.OnTouchStarted -= Jump;
+		InputManager.OnTouchEnded -= GoDown;
+		InputManager.OnSecondEnded -= CancelDive;
+		InputManager.OnTouchEnded -= CancelDive;
+		SwipeDetection.OnSwipeDetected -= StartDashCoroutine;
+	}
 
 	private void Start()
 	{
 		characterController = GetComponent<CharacterController>();
 	}
 
-    private void FixedUpdate()
-    {
+	private void FixedUpdate()
+	{
 
-    }
+	}
 
-    private void Update()
+	private void Update()
 	{
 		/*if (CheckCloseToGround())
 		{
@@ -94,13 +100,13 @@ public class PlayerMovement : MonoBehaviour
 			verticalVelocity = 0;
 		}
 
-		if (IsGrounded && delayAfterJump <=0)
+		if (IsGrounded && delayAfterJump <= 0)
 		{
 			coyoteTimeCounter = coyoteTime;
 			downVelocityMultiplier = 1f;
 			canJump = true;
 
-        }
+		}
 		else
 		{
 			coyoteTimeCounter -= Time.deltaTime;
@@ -109,11 +115,11 @@ public class PlayerMovement : MonoBehaviour
 
 		jumpBufferCounter -= Time.deltaTime;
 
-		if(delayForSecondJump >= 0)
+		if (delayForSecondJump >= 0)
 		{
 			delayForSecondJump -= Time.deltaTime;
 		}
-		HandleAnimation();
+		
 
 		if (canMove)
 		{
@@ -126,11 +132,19 @@ public class PlayerMovement : MonoBehaviour
 				Rotation();
 			}
 		}
-
-        if (characterController.velocity.y < -100 && !IsGrounded)
-        {
-			animator.SetTrigger("JumpApex");
+		else
+		{
+            if (joystick.Horizontal != 0 || joystick.Vertical != 0)
+            {
+                Rotation();
+            }
         }
+
+		if (characterController.velocity.y < -100 && !IsGrounded)
+		{
+			animator.SetTrigger("JumpApex");
+		}
+        HandleAnimation();
     }
 
 	private void HandleAnimation()
@@ -153,6 +167,19 @@ public class PlayerMovement : MonoBehaviour
 		{
 			animator.SetBool("IsJumping", false);
 		}
+
+		if (IsGrounded && InputManager.CheckIfButtonIsDown() && IsDivingDown)
+		{
+			animator.SetBool("IsGrappling", true);
+			fallingDownFX.Stop();
+			canMove = false;
+		}
+
+		if (!IsGrounded || !InputManager.CheckIfButtonIsDown())
+        {
+            animator.SetBool("IsGrappling", false);
+			canMove = true;
+        }
 	}
 
     private void Move()
@@ -249,10 +276,10 @@ public class PlayerMovement : MonoBehaviour
             if (Physics.Raycast(position, Vector3.down, out hit))
             {
 
-                if (hit.collider.gameObject.GetComponent<NormalCube>() != null)
+                if (hit.collider.gameObject.GetComponent<CubeBase>() != null)
                 {
 
-                    var cube = hit.collider.gameObject.GetComponent<NormalCube>();
+                    var cube = hit.collider.gameObject.GetComponent<CubeBase>();
                     var direction = characterController.transform.position - cube.transform.position;
                     var modifiedDirection = new Vector3(direction.x, 0, direction.z);
                     StartCoroutine(CorrectPositionToCubeCenter(cube.transform));
@@ -265,6 +292,7 @@ public class PlayerMovement : MonoBehaviour
                     Debug.Log("DiveTowardsCube");
                     animator.SetBool("IsDiving", true);
                     IsDivingDown = true;
+					fallingDownFX.Play();
                     isGravityOn = true;
                     verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
                     verticalVelocity = -verticalVelocity * 2;
@@ -279,6 +307,7 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log("Dive down");
         animator.SetBool("IsDiving", true);
 		IsDivingDown = true;
+        fallingDownFX.Play();
 
         isGravityOn = true;
         verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
@@ -303,8 +332,6 @@ public class PlayerMovement : MonoBehaviour
 			transform.position = Vector3.Lerp(transform.position, new Vector3(cubeTransform.position.x, transform.position.y, cubeTransform.position.z), Time.deltaTime*5);
 			yield return null;
 		}
-        //var requieredPosition = new Vector3(cubeTransform.transform.position.x, transform.position.y, cubeTransform.transform.position.z);
-        //transform.position = requieredPosition;
 		yield return null;
     }
 
@@ -323,8 +350,6 @@ public class PlayerMovement : MonoBehaviour
         }
 	
 	}
-
-
 
 	private bool CheckIsGrounded()
 	{
@@ -346,8 +371,7 @@ public class PlayerMovement : MonoBehaviour
 		if (IsGrounded && verticalVelocity < 0)
 		{
 			verticalVelocity = -2;
-            animator.SetBool("IsDiving", false);
-            IsDivingDown = false;
+            //IsDivingDown = false;
         }
 	}
 
@@ -359,7 +383,6 @@ public class PlayerMovement : MonoBehaviour
 			downVelocityMultiplier = 1.6f;
 		}
 	}
-
 	public void Stop()
 	{
 		horizontalSpeed = 0f;
@@ -457,5 +480,21 @@ public class PlayerMovement : MonoBehaviour
             yield return null;
         }
 		isGravityOn = true;
+    }
+
+	private void CancelDive()
+	{
+		IsDivingDown = false;
+        fallingDownFX.Stop();
+        animator.SetBool("IsDiving", false);
+    }
+
+	private void SetButtonDownTrue()
+	{
+		IsButtonDown = true;
+	}
+    private void SetButtonDownFalse()
+    {
+		IsButtonDown = false;
     }
 }
