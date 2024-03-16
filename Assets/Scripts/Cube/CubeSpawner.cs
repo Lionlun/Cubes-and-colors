@@ -39,21 +39,21 @@ public class CubeSpawner : MonoBehaviour
 
 			var random = Random.Range(0, 101);
 
-			if(random <= 70)
+			if(random <= 80)
 			{
                 var newNormalCube = Instantiate(cube, newPosition, Quaternion.identity);
 				newNormalCube.SetDefaultPosition(newPosition);
                 lastPosition = newNormalCube.transform.position;
                 Cubes.Add(newNormalCube);
             }
-			if(random >70 && random <= 80)
+			if(random >80 && random <= 85)
 			{
                 var newTurnOffCube = Instantiate(turnOffCube, newPosition, Quaternion.identity);
                 newTurnOffCube.SetDefaultPosition(newPosition);
                 lastPosition = newTurnOffCube.transform.position;
                 Cubes.Add(newTurnOffCube);
             }
-			if (random > 80 && random <= 90)
+			if (random > 85 && random <= 90)
 			{
                 var newMovingCube = Instantiate(movingCube, newPosition, Quaternion.identity);
 				newMovingCube.SetDefaultPosition(newPosition);
@@ -90,11 +90,15 @@ public class CubeSpawner : MonoBehaviour
 
 	private Vector3 GetRandomOffset()
 	{
-		var randomX = Random.Range(-4,4);
+		var randomX = Random.Range(-5,6);
 		while (randomX == previousRandomX)
 		{
-			randomX = Random.Range(-4, 4);
-		}
+            randomX = Random.Range(-5, 6);
+        }
+		while(randomX == 0)
+		{
+            randomX = Random.Range(-5, 6);
+        }
 		previousRandomX = randomX;
 
 		var randomY = Random.Range(6,10f);

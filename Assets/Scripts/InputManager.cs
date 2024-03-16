@@ -8,22 +8,35 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoBehaviour
 {
 	public static event Action OnTouchStarted = delegate { };
-	public static event Action OnTouchEnded = delegate { };
-	public static event Action<Vector2, float> OnStartSwipe;
+    public static event Action OnTouchEnded = delegate { };
+
+    public static event Action OnSecondStarted = delegate { };
+    public static event Action OnSecondEnded = delegate { };
+
+    public static event Action<Vector2, float> OnStartSwipe;
     public static event Action<Vector2, float> OnEndSwipe;
     private TouchControls touchControls;
 	[SerializeField] private UITouchChecker uIChecker;
 	private Camera mainCamera;
 	private bool isSwipeStarted;
 
+    private static bool IsHoldingFirstTouchDown;
+    private static bool IsHoldingSecondTouchDown;
+
+
 	private void Awake()
 	{
 		touchControls = new TouchControls();
         mainCamera = Camera.main;
-
     }
 
-	private void OnEnable()
+    private void Update()
+    {
+        Debug.Log("Is holding first is " + IsHoldingFirstTouchDown);
+        Debug.Log("Is holding second is " + IsHoldingSecondTouchDown);
+    }
+
+    private void OnEnable()
 	{
 		touchControls.Enable();
 		touchControls.Touch.FirstTouchPress.started += ctx => FirstTouch(ctx);
@@ -44,6 +57,7 @@ public class InputManager : MonoBehaviour
 	private async void FirstTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
+        
 
         if (touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>().x < Screen.width / 2)
         {
@@ -52,20 +66,16 @@ public class InputManager : MonoBehaviour
         }
 		else
 		{
+            IsHoldingFirstTouchDown = true;
             OnTouchStarted?.Invoke();
             Debug.Log("Touch started");
         }
-
-        if (!uIChecker.IsPointerOverUI())
-		{
-		
-		}
     }
 
     private void EndFirstTouch(InputAction.CallbackContext context)
     {
         OnTouchEnded?.Invoke();
-
+        IsHoldingFirstTouchDown = false;
         if (isSwipeStarted)
         {
             if (touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>().x > Screen.width / 2)
@@ -85,7 +95,8 @@ public class InputManager : MonoBehaviour
     private async void SecondTouch(InputAction.CallbackContext context)
 	{
 		await Task.Delay(10); //ToDo Implement the appropriate solution later
-
+       
+        OnSecondStarted?.Invoke();
         if (touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x < Screen.width / 2)
 		{
             OnStartSwipe?.Invoke(touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>(), (float)context.startTime);
@@ -93,6 +104,7 @@ public class InputManager : MonoBehaviour
         }
 		else
 		{
+            IsHoldingSecondTouchDown = true;
             OnTouchStarted?.Invoke();
         }
   
@@ -101,7 +113,9 @@ public class InputManager : MonoBehaviour
 
 	private void EndSecondTouch(InputAction.CallbackContext context)
 	{
-		if(isSwipeStarted)
+        IsHoldingSecondTouchDown = false;
+        OnSecondEnded?.Invoke();
+        if (isSwipeStarted)
 		{
             isSwipeStarted = false;
             if (touchControls.Touch.SecondTouchPosition.ReadValue<Vector2>().x > Screen.width / 2)
@@ -119,8 +133,15 @@ public class InputManager : MonoBehaviour
 	{
 		return CoordinateConverter.ScreenToWorld(mainCamera, touchControls.Touch.FirstTouchPosition.ReadValue<Vector2>());
 	}
-	private void CheckUI()
-	{
-		
-	}
+    public static bool CheckIfButtonIsDown()
+    {
+        if (IsHoldingFirstTouchDown || IsHoldingSecondTouchDown)
+        {
+            return true;
+        }
+        else 
+        {
+            return false; 
+        }
+    }
 }

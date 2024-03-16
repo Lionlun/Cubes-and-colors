@@ -109,8 +109,6 @@ public class CubeController : MonoBehaviour
             activationRoutine = null;
         }
 
-
-        Debug.Log("Try to deactivate");
 		var cubes = CubeSpawner.Cubes;
 		foreach (var cube in cubes)
 		{
@@ -119,7 +117,6 @@ public class CubeController : MonoBehaviour
 				continue;
 			}
 			cube.TurnOffCube();
-			Debug.Log("CubeDeactivated");
 		}
 	}
 
@@ -132,7 +129,6 @@ public class CubeController : MonoBehaviour
 	private IEnumerator ActivationRoutine()
 	{
        yield return new WaitForSeconds(0.7f);
-        Debug.Log("Try to activate");
         var cubes = CubeSpawner.Cubes;
         foreach (var cube in cubes)
         {
@@ -141,7 +137,6 @@ public class CubeController : MonoBehaviour
                 continue;
             }
             cube.TurnOnCube();
-            Debug.Log("CubeActivated");
         }
     }
 
