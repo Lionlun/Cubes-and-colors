@@ -40,11 +40,9 @@ public class LedgeDetection : MonoBehaviour
 			{
                 if (hit.collider.GetComponent<CubeBase>() != null)
                 {
-                    Debug.Log("Found Cube");
                     var cube = hit.collider.GetComponent<CubeBase>();
                     if (cube.IsInMovement)
                     {
-                        Debug.Log("Is In Movement");
                         //player.transform.position = cube.transform.position - player.transform.forward * 2;
                         ResetGrapCooldown();
                         return;

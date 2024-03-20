@@ -205,7 +205,7 @@ public class CubeBase : MonoBehaviour
         {
             if (!hasJumped)
             {
-                playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
+               playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
             }
 
             currentPosition = Vector3.Lerp(currentPosition, upPosition, Time.deltaTime * springSpeed * 1.9f);
@@ -227,9 +227,11 @@ public class CubeBase : MonoBehaviour
         var deltaSpeed = springSpeed;
         while (deltaSpeed > 15)
         {
-            if (!hasJumped)
+            if (!hasJumped && playerMovement.IsGrounded)
             {
-                playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
+                //playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, currentPosition.y + 1, playerMovement.transform.position.z);
+                var direction = (DefaultPosition - transform.position).normalized;
+                playerMovement.transform.position += direction * Time.deltaTime * deltaSpeed;
             }
 
             currentPosition = Vector3.Lerp(currentPosition, DefaultPosition, Time.deltaTime * deltaSpeed);
@@ -243,9 +245,11 @@ public class CubeBase : MonoBehaviour
 
         while(!Mathf.Approximately(transform.position.y, DefaultPosition.y))
         {
-            if (!hasJumped)
+            if (!hasJumped && playerMovement.IsGrounded)
             {
-                playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, transform.position.y + 1, playerMovement.transform.position.z);
+                 //playerMovement.transform.position = new Vector3(playerMovement.transform.position.x, transform.position.y + 1, playerMovement.transform.position.z);
+                var direction = (DefaultPosition - transform.position).normalized;
+                playerMovement.transform.position += direction* Time.deltaTime * deltaSpeed;
             }
             transform.position = Vector3.MoveTowards(transform.position, DefaultPosition, Time.deltaTime * deltaSpeed);
             yield return null;
