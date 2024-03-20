@@ -11,7 +11,7 @@ public class CubeBase : MonoBehaviour
 	public Rigidbody Rb { get; private set; }
 	private float getVelocityCooldown;
 	private float getVelocityCooldownRefresh = 0.5f;
-	private IEnumerator currentRoutine;
+	public IEnumerator CurrentRoutine { get; private set; }
 	private float springSpeed = 9f;
 	[SerializeField] protected LayerMask PlayerLayer;
 	private bool isFollowing;
@@ -28,6 +28,7 @@ public class CubeBase : MonoBehaviour
     [SerializeField] private ParticleSystem turnOffFX;
     protected Vector3 DefaultPosition;
     private bool isCollided;
+    public bool IsInMovement { get; private set; }
 
     private void Awake()
 	{
@@ -118,25 +119,26 @@ public class CubeBase : MonoBehaviour
 			return;
 		}
 		
-        if (currentRoutine == null)
+        if (CurrentRoutine == null)
 		{
             var downPosition = transform.position + velocity / 4;
             var upPosition = transform.position - velocity / 4;
-            currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
-            StartCoroutine(currentRoutine);
+            CurrentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
+            StartCoroutine(CurrentRoutine);
         }
         else
         {
             var downPosition = DefaultPosition + velocity / 4;
             var upPosition = DefaultPosition - velocity / 4;
-            StopCoroutine(currentRoutine);
-            currentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
-            StartCoroutine(currentRoutine);
+            StopCoroutine(CurrentRoutine);
+            CurrentRoutine = SpringMovement(downPosition, upPosition, playerMovement);
+            StartCoroutine(CurrentRoutine);
         }
 	}
 
-	public IEnumerator SpringMovement(Vector3 downPosition, Vector3 upPosition, PlayerMovement playerMovement)
-	{
+    public IEnumerator SpringMovement(Vector3 downPosition, Vector3 upPosition, PlayerMovement playerMovement)
+    {
+        IsInMovement = true;
         var amplitude = Vector3.Distance(upPosition, downPosition);
 
         Vector3 currentPosition = transform.position;
@@ -217,6 +219,7 @@ public class CubeBase : MonoBehaviour
                 break;
             }
 
+            IsInMovement = false;
             yield return null;
         }
 
@@ -249,7 +252,7 @@ public class CubeBase : MonoBehaviour
         }
 
         transform.position = DefaultPosition;
-        currentRoutine = null;
+        CurrentRoutine = null;
         getVelocityCooldown = getVelocityCooldownRefresh;
         isCollided = false;
         yield return null;

@@ -55,8 +55,9 @@ public class PlayerMovement : MonoBehaviour
 	public bool IsDivingDown { get; set; }
 	public bool IsButtonDown { get; set; }
 	[SerializeField] private ParticleSystem fallingDownFX;
+    public bool IsHanging { get; set; }
 
-	private void OnEnable()
+    private void OnEnable()
 	{
 		InputManager.OnTouchStarted += HandleJumpBuffer;
 		InputManager.OnTouchStarted += Jump;
@@ -136,7 +137,11 @@ public class PlayerMovement : MonoBehaviour
 		{
             if (joystick.Horizontal != 0 || joystick.Vertical != 0)
             {
-                Rotation();
+				if (!IsHanging)
+				{
+                    Rotation();
+                }
+        
             }
         }
 
@@ -177,6 +182,10 @@ public class PlayerMovement : MonoBehaviour
 
 		if (!IsGrounded || !InputManager.CheckIfButtonIsDown())
         {
+			if (IsHanging)
+			{
+				return;
+			}
             animator.SetBool("IsGrappling", false);
 			canMove = true;
         }
@@ -223,7 +232,11 @@ public class PlayerMovement : MonoBehaviour
 
 	public void Jump()
 	{
-		if(coyoteTimeCounter > 0)
+		if(IsHanging)
+		{
+           
+        }
+		else if (coyoteTimeCounter > 0)
 		{
             if (canJump)
             {
@@ -403,8 +416,26 @@ public class PlayerMovement : MonoBehaviour
 
 	public void LedgeJump()
 	{
+        ledgeDetection.ResetGrapCooldown();
+        IsHanging = false;
         canMove = true;
-        verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+
+
+		StartCoroutine(LedgeJumpRoutine());
+        //verticalVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
+        animator.SetBool("OnLedge", false);
+    }
+
+	private IEnumerator LedgeJumpRoutine()
+	{
+		var delta = 30f;
+		for (int i = 0; i <40; i++)
+		{
+			transform.position += new Vector3(0, delta, 0) *Time.deltaTime;
+			delta -= 0.85f;
+			yield return null;
+		}
+        EnableGravity();
     }
 
     public float GetVerticalVelocity()
@@ -497,4 +528,12 @@ public class PlayerMovement : MonoBehaviour
     {
 		IsButtonDown = false;
     }
+	public void DisableGravity()
+	{
+		isGravityOn = false;
+	}
+	public void EnableGravity()
+	{
+		isGravityOn = true;
+	}
 }

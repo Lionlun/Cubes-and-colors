@@ -1,18 +1,14 @@
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 public class LedgeDetection : MonoBehaviour
 {
-	private bool onWall;
-	private bool onWallForward;
-	private bool onWallDown;
-	private bool onLedge;
-	private bool isAlreadyMoved;
+
 
 	[SerializeField] private float wallCheckRayDistance = 1f;
 	[SerializeField] private float ledgeRayCorrectY = 0.5f;
 	[SerializeField] private float offsetY;
-	private float minCorrectionY = 0.01f;
 
 	[SerializeField] private Transform wallCheckUp;
 	[SerializeField] private Transform wallCheckDown;
@@ -20,118 +16,62 @@ public class LedgeDetection : MonoBehaviour
 	[SerializeField] private LayerMask groundLayer;
 	[SerializeField] private Animator animator;
 	[SerializeField] private CharacterController characterController;
+	private float grapCooldown = 0.5f;
+	private float grapCooldownRefresh = 0.5f;
 
     private void FixedUpdate()
-	{
-		CheckLedge();
+    {
+        GrabLedge();
     }
-
-	private void Climb()
-	{
-		if (onLedge)
-		{
-			animator.SetTrigger("Climb");
-			player.LedgeJump();
-        }
-
-    }
-
-	private void CheckLedge()
-	{
-		onWallForward = Physics.Raycast(wallCheckUp.position, transform.forward, wallCheckRayDistance, groundLayer);
-		var onWallBack = Physics.Raycast(wallCheckUp.position, -transform.forward, wallCheckRayDistance, groundLayer);
-        if (onWallForward || onWallBack)
+    private void Update()
+    {
+       
+        if (grapCooldown > 0)
         {
-			onLedge = true;
-            /*Ray ray = new Ray(wallCheckUp.position, transform.forward);
-            RaycastHit hit;
-            onLedge = !Physics.Raycast(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0), transform.forward, wallCheckRayDistance, groundLayer);
-            if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
-            {
-                if (hit.transform.GetComponent<Collider>())
-                {
-                    Physics.IgnoreCollision(characterController, hit.transform.GetComponent<Collider>());
-					ResetCollision(hit.transform.GetComponent<Collider>());
-                }
-            }*/
-
-            //MoveTowardsLedge();
-            //player.ContinueMovement();
+            grapCooldown -= Time.deltaTime;
         }
-		else
-		{
-			onLedge = false;
-        }
-
-
-        
-
-        animator.SetBool("OnLedge", onLedge);
-
-		/*if (onLedge)
-		{	
-			//player.Stop();
-           
-            CalculateCorrectOffset();
-            Climb();
-        }
-		else
-		{
-			//CurrentCubeToClimb = null;
-        }*/
-	}
-
-	private async void ResetCollision(Collider collider)
+    }
+    private void GrabLedge()
 	{
-		await Task.Delay(200);
-        Physics.IgnoreCollision(characterController, collider, false);
+		if (!player.IsHanging && grapCooldown <=0)
+		{
+			RaycastHit hit;
+            if(!Physics.Raycast(wallCheckUp.position, transform.forward, 2f, groundLayer) && Physics.Raycast(wallCheckDown.position, transform.forward, out hit, 2f, groundLayer))
+			{
+                if (hit.collider.GetComponent<CubeBase>() != null)
+                {
+                    Debug.Log("Found Cube");
+                    var cube = hit.collider.GetComponent<CubeBase>();
+                    if (cube.IsInMovement)
+                    {
+                        Debug.Log("Is In Movement");
+                        //player.transform.position = cube.transform.position - player.transform.forward * 2;
+                        ResetGrapCooldown();
+                        return;
+                    }
+                }
+
+                player.IsHanging = true;
+
+                Vector3 hangPos = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+                Vector3 offset = transform.forward * -0.5f + transform.up * -0.8f;
+                hangPos += offset;
+                player.transform.position = hangPos;
+                transform.forward = -hit.normal;
+                player.DisableGravity();
+                player.Stop();
+                animator.SetBool("OnLedge", true);
+
+
+                //player.LedgeJump();
+            }
+        
+        }
     }
 
-    private void MoveTowardsLedge()
+	public void ResetGrapCooldown()
 	{
-		if (isAlreadyMoved)
-		{
-			return;
-		}
-		isAlreadyMoved = true;
-		Ray ray = new Ray(wallCheckUp.position, transform.forward);
-		RaycastHit hit;
+		grapCooldown = grapCooldownRefresh;
 
-		if (Physics.Raycast(ray, out hit, wallCheckRayDistance, groundLayer))
-		{
-            var direction = hit.point - player.transform.position;
-			player.transform.position += new Vector3(direction.x, 0, direction.z).normalized * hit.distance/1.5f;
-        }
-	}
-
-	private  void CalculateCorrectOffset()
-	{
-		Ray ray = new Ray(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0) + transform.forward * wallCheckRayDistance, Vector3.down);
-		RaycastHit hit;
-
-		if (Physics.Raycast(ray, out hit, ledgeRayCorrectY, groundLayer))
-		{
-			offsetY = hit.distance;
-
-			if(offsetY > minCorrectionY * 1.5f)
-			{
-				player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y - offsetY + minCorrectionY, player.transform.position.z);
-				isAlreadyMoved = false;
-			}
-		}
-	}
-
-	private void OnDrawGizmos()
-	{
-		Gizmos.color = Color.blue;
-		Gizmos.DrawLine(wallCheckUp.position, wallCheckUp.position + wallCheckUp.forward * wallCheckRayDistance);
-
-		Gizmos.color = Color.red;
-		Gizmos.DrawLine(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0),
-			wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0) + wallCheckUp.forward * wallCheckRayDistance);
-		
-		Gizmos.color = Color.green;
-		Gizmos.DrawLine(wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0) + transform.forward * wallCheckRayDistance,
-			wallCheckUp.position + new Vector3(0, ledgeRayCorrectY, 0) + transform.forward * wallCheckRayDistance + Vector3.down * ledgeRayCorrectY);
-	}
+    }
 }
